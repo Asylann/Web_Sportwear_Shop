@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportWear Shop - Sign Up</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body class="auth-body">
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Join SportWear Shop</h1>
+            <p>Create your account to start shopping</p>
+        </div>
+
+        <form id="signupForm" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Account Type</label>
+                <select id="role" name="role" required>
+                    <option value="">Select account type</option>
+                    <option value="1">Customer (Browse & Buy)</option>
+                    <option value="2">Seller (Manage Products)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="signupBtn">
+                <span class="btn-text">Create Account</span>
+                <div class="loading-spinner" style="display: none;"></div>
+            </button>
+
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="../index.html" class="auth-link">Sign in here</a></p>
+        </div>
+    </div>
+</div>
+
+<div class="background-animation">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+</div>
+
+<script src="../js/utils.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+    // Check if user is already logged in
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('authToken');
+        if (token && !isTokenExpired(token)) {
+            const role = getUserRole();
+            redirectToDashboard(role);
+        }
+    });
+
+    // Handle signup form
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const roleId = parseInt(document.getElementById('role').value);
+
+        const signupBtn = document.getElementById('signupBtn');
+        const btnText = signupBtn.querySelector('.btn-text');
+        const spinner = signupBtn.querySelector('.loading-spinner');
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            showError('Passwords do not match');
+            return;
+        }
+
+        // Show loading state
+        signupBtn.disabled = true;
+        btnText.style.display = 'none';
+        spinner.style.display = 'block';
+        hideMessages();
+
+        try {
+            const result = await signup(email, password, roleId);
+
+            if (result.success) {
+                showSuccess('Account created successfully! Redirecting to login...');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Signup failed. Please try again.');
+        } finally {
+            // Reset button state
+            signupBtn.disabled = false;
+            btnText.style.display = 'block';
+            spinner.style.display = 'none';
+        }
+    });
+
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function showSuccess(message) {
+        const successDiv = document.getElementById('successMessage');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+        document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function hideMessages() {
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function redirectToDashboard(role) {
+        switch(role) {
+            case 1: // Customer
+                window.location.href = 'dashboard.html';
+                break;
+            case 2: // Seller
+                window.location.href = 'seller.html';
+                break;
+            case 3: // Admin
+                window.location.href = 'admin.html';
+                break;
+            default:
+                window.location.href = 'dashboard.html';
+        }
+    }
+</script>
+</body>
+</html>

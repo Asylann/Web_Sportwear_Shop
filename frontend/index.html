@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportWear Shop - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>SportWear Shop</h1>
+            <p>Welcome back! Please sign in to your account</p>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="loginBtn">
+                <span class="btn-text">Sign In</span>
+                <div class="loading-spinner" style="display: none;"></div>
+            </button>
+
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="pages/signup.html" class="auth-link">Sign up here</a></p>
+        </div>
+    </div>
+</div>
+
+<div class="background-animation">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    // Check if user is already logged in
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('authToken');
+        if (token && !isTokenExpired(token)) {
+            const role = getUserRole();
+            redirectToDashboard(role);
+        }
+    });
+
+    // Handle login form
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = loginBtn.querySelector('.btn-text');
+        const spinner = loginBtn.querySelector('.loading-spinner');
+
+        // Show loading state
+        loginBtn.disabled = true;
+        btnText.style.display = 'none';
+        spinner.style.display = 'block';
+        hideError();
+
+        try {
+            const result = await login(email, password);
+
+            if (result.success) {
+                // Login successful, redirect based on role
+                const role = getUserRole();
+                redirectToDashboard(role);
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Login failed. Please try again.');
+        } finally {
+            // Reset button state
+            loginBtn.disabled = false;
+            btnText.style.display = 'block';
+            spinner.style.display = 'none';
+        }
+    });
+
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function hideError() {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.style.display = 'none';
+    }
+
+    function redirectToDashboard(role) {
+        switch(role) {
+            case 1: // Customer
+                window.location.href = 'pages/dashboard.html';
+                break;
+            case 2: // Seller
+                window.location.href = 'pages/seller.html';
+                break;
+            case 3: // Admin
+                window.location.href = 'pages/admin.html';
+                break;
+            default:
+                window.location.href = 'pages/dashboard.html';
+        }
+    }
+</script>
+</body>
+</html>
