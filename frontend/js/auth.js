@@ -14,9 +14,17 @@ function showError(message) {
     }
 }
 
-// After login/signup, redirect based on role
-function redirectByRole(roleId) {
-    window.location.href = "/pages/dashboard.html";
+// Helper: hide error message
+function hideError() {
+    const errorElem = document.getElementById("error-message");
+    if (errorElem) {
+        errorElem.style.display = "none";
+    }
+}
+
+// After login/signup, redirect to dashboard
+function redirectToDashboard() {
+    window.location.href = "pages/dashboard.html";
 }
 
 // Handle login form submission
@@ -25,10 +33,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            showError(""); // clear
+            hideError(); // clear previous errors
 
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
+
+            if (!email || !password) {
+                showError("Please fill in all fields");
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/login`, {
@@ -36,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
                 });
+
                 const result = await res.json();
 
                 if (!res.ok) {
@@ -45,16 +59,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // successful login: store token + roleId
                 const token = result.data.token;
-                const payload = JSON.parse(atob(token.split(".")[1]));
-                const roleId = parseInt(payload.role_id, 10);
 
-                localStorage.setItem("token", token);
-                localStorage.setItem("roleId", roleId);
+                // Decode JWT to get role
+                try {
+                    const payload = JSON.parse(atob(token.split(".")[1]));
+                    const roleId = parseInt(payload.role_id, 10);
 
-                redirectByRole(roleId);
+                    localStorage.setItem("token", token);
+                    localStorage.setItem("roleId", roleId);
+
+                    redirectToDashboard();
+                } catch (jwtError) {
+                    console.error("JWT decode error:", jwtError);
+                    showError("Invalid token received");
+                }
             } catch (err) {
                 console.error("Login error:", err);
-                showError("Something went wrong.");
+                showError("Network error. Please try again.");
             }
         });
     }
@@ -64,11 +85,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (signupForm) {
         signupForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            showError("");
+            hideError();
 
             const email = document.getElementById("signup-email").value.trim();
             const password = document.getElementById("signup-password").value;
             const roleId = parseInt(document.getElementById("signup-role").value, 10);
+
+            if (!email || !password || !roleId) {
+                showError("Please fill in all fields");
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/signup`, {
@@ -76,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password, roleId }),
                 });
+
                 const result = await res.json();
 
                 if (!res.ok) {
@@ -87,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.location.href = "/index.html";
             } catch (err) {
                 console.error("Signup error:", err);
-                showError("Something went wrong.");
+                showError("Network error. Please try again.");
             }
         });
     }

@@ -12,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="auth-container">
-    <div class="auth-box">
-        <h1 class="logo">🏀 WebSportwareShop</h1>
-        <p class="subtitle">Login to your account</p>
+<div class="container">
+    <div class="auth-card">
+        <h1>🏀 WebSportwareShop</h1>
+        <p>Login to your account</p>
 
         <form id="login-form">
             <div class="form-group">
@@ -28,14 +28,14 @@
                 <input type="password" id="password" name="password" placeholder="Enter your password" required />
             </div>
 
-            <div id="error-message" class="error-message"></div>
+            <div id="error-message" class="error-message" style="display: none;"></div>
 
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="button">Login</button>
         </form>
 
-        <p class="signup-link">
+        <div class="auth-link">
             Don't have an account? <a href="pages/signup.html">Sign up here</a>
-        </p>
+        </div>
     </div>
 </div>
 
@@ -44,6 +44,7 @@
 </footer>
 
 <script src="js/api.js"></script>
+<script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
 </body>
 </html>

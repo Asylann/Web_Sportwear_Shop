@@ -4,55 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products | SportwareShop</title>
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/components.css">
 </head>
 <body>
-<nav>
-    <h1>🏀 SportwareShop</h1>
-    <button onclick="logout()">Logout</button>
-</nav>
+<header class="dashboard-header">
+    <h1>🏀 SportwareShop - Products</h1>
+    <div>
+        <a href="dashboard.html" class="button" style="margin-right: 10px;">Dashboard</a>
+        <button onclick="logout()" class="button">Logout</button>
+    </div>
+</header>
 
-<div class="content">
-    <h2>Products</h2>
-    <div id="productsList" class="product-list"></div>
-</div>
+<main class="dashboard-main">
+    <div class="dashboard-card">
+        <h2>All Products</h2>
+        <div id="productsList" class="product-grid"></div>
+    </div>
+</main>
 
 <script src="../js/api.js"></script>
 <script src="../js/utils.js"></script>
 <script>
-    const token = localStorage.getItem('token');
-    if (!token) location.href = '../index.html';
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!utils.checkAuth()) return;
+        if (!utils.checkRole(1, 2, 3)) return;
 
-    fetchProducts();
+        fetchProducts();
+    });
 
     function fetchProducts() {
+        const token = localStorage.getItem('token');
+
         fetch('http://localhost:8080/products', {
             headers: {
                 'Authorization': 'Bearer ' + token
             }
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
                 const list = document.getElementById('productsList');
+                list.innerHTML = '';
+
                 if (data.data) {
-                    Object.values(data.data).forEach(p => {
+                    const products = Array.isArray(data.data) ? data.data : Object.values(data.data);
+
+                    if (products.length === 0) {
+                        list.innerHTML = '<p>No products found.</p>';
+                        return;
+                    }
+
+                    products.forEach(p => {
                         const card = document.createElement('div');
                         card.className = 'product-card';
                         card.innerHTML = `
-              <h3>${p.name}</h3>
-              <p>${p.description}</p>
-              <strong>$${p.price}</strong>
-            `;
+                            ${p.imageURL ? `<img src="${p.imageURL}" alt="${p.name}" />` : ''}
+                            <div class="info">
+                                <h3>${p.name}</h3>
+                                <p>${p.description}</p>
+                                <div class="price">${p.price} ₸</div>
+                            </div>
+                        `;
                         list.appendChild(card);
                     });
+                } else {
+                    list.innerHTML = '<p>No products found.</p>';
                 }
+            })
+            .catch(err => {
+                console.error('Error fetching products:', err);
+                utils.showAlert('Error loading products: ' + err.message, 'error');
             });
-    }
-
-    function logout() {
-        localStorage.clear();
-        location.href = '../index.html';
     }
 </script>
 </body>
