@@ -26,38 +26,100 @@ function redirectTo(page) {
     window.location.href = page;
 }
 
-// Check if user has required role(s)
+// Check if user has required role(s) with better error handling
 function checkRole(...allowedRoles) {
+    console.log("Checking role access...");
+
+    const token = localStorage.getItem("token");
     const roleId = parseInt(localStorage.getItem("roleId"), 10);
-    if (!roleId || !allowedRoles.includes(roleId)) {
-        alert("You don't have permission for this page.");
-        // Check if we're already in pages/ directory
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/pages/')) {
-            window.location.href = "dashboard.html";
-        } else {
-            window.location.href = "pages/dashboard.html";
-        }
+
+    console.log("Token exists:", !!token);
+    console.log("Role ID:", roleId);
+    console.log("Allowed roles:", allowedRoles);
+
+    if (!token) {
+        console.error("No token found");
+        showAlert("Please log in to access this page.", "error");
+        redirectToLogin();
         return false;
     }
+
+    if (!roleId || isNaN(roleId)) {
+        console.error("Invalid role ID");
+        showAlert("Invalid role. Please log in again.", "error");
+        clearToken();
+        redirectToLogin();
+        return false;
+    }
+
+    if (!allowedRoles.includes(roleId)) {
+        console.error(`Role ${roleId} not in allowed roles:`, allowedRoles);
+        showAlert("You don't have permission to access this page.", "error");
+        setTimeout(() => {
+            redirectToDashboard();
+        }, 2000);
+        return false;
+    }
+
+    console.log("Role check passed");
     return true;
 }
 
-// Check if user is authenticated
+// Check if user is authenticated with better token validation
 function checkAuth() {
+    console.log("Checking authentication...");
+
     const token = localStorage.getItem("token");
+
     if (!token) {
-        alert("You must be logged in to access this page.");
-        // Check if we're already in pages/ directory
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/pages/')) {
-            window.location.href = "../index.html";
-        } else {
-            window.location.href = "index.html";
-        }
+        console.error("No token found");
+        showAlert("Please log in to access this page.", "error");
+        redirectToLogin();
         return false;
     }
+
+    // Check if token is expired
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        if (payload.exp && payload.exp < currentTime) {
+            console.error("Token expired");
+            showAlert("Your session has expired. Please log in again.", "error");
+            clearToken();
+            redirectToLogin();
+            return false;
+        }
+    } catch (error) {
+        console.error("Error parsing token:", error);
+        showAlert("Invalid token. Please log in again.", "error");
+        clearToken();
+        redirectToLogin();
+        return false;
+    }
+
+    console.log("Authentication check passed");
     return true;
+}
+
+// Helper function to redirect to login
+function redirectToLogin() {
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/pages/')) {
+        window.location.href = "../index.html";
+    } else {
+        window.location.href = "index.html";
+    }
+}
+
+// Helper function to redirect to dashboard
+function redirectToDashboard() {
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/pages/')) {
+        window.location.href = "dashboard.html";
+    } else {
+        window.location.href = "pages/dashboard.html";
+    }
 }
 
 // Save token to localStorage
@@ -74,6 +136,7 @@ function getToken() {
 function clearToken() {
     localStorage.removeItem("token");
     localStorage.removeItem("roleId");
+    console.log("Tokens cleared");
 }
 
 // Check if token exists
@@ -83,14 +146,12 @@ function isAuthenticated() {
 
 // Global logout function
 function logout() {
+    console.log("Logging out...");
     clearToken();
-    // Check if we're in pages/ directory
-    const currentPath = window.location.pathname;
-    if (currentPath.includes('/pages/')) {
-        window.location.href = "../index.html";
-    } else {
-        window.location.href = "index.html";
-    }
+    showAlert("You have been logged out.", "success");
+    setTimeout(() => {
+        redirectToLogin();
+    }, 1000);
 }
 
 // Attach event listener helper
@@ -109,6 +170,48 @@ function onSubmit(selector, callback) {
     }
 }
 
+// Enhanced API request with better error handling
+function makeAuthenticatedRequest(endpoint, options = {}) {
+    const token = getToken();
+
+    if (!token) {
+        throw new Error("No authentication token found");
+    }
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        ...options.headers
+    };
+
+    return fetch(`http://localhost:8080${endpoint}`, {
+        ...options,
+        headers
+    }).then(response => {
+        if (response.status === 401) {
+            console.error("Unauthorized access - token invalid or expired");
+            clearToken();
+            showAlert("Session expired. Please log in again.", "error");
+            setTimeout(() => {
+                redirectToLogin();
+            }, 2000);
+            throw new Error("Unauthorized");
+        }
+
+        if (response.status === 403) {
+            console.error("Forbidden access - insufficient permissions");
+            showAlert("You don't have permission to perform this action.", "error");
+            throw new Error("Forbidden");
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        return response.json();
+    });
+}
+
 // Expose utilities globally
 window.utils = {
     showAlert,
@@ -121,7 +224,10 @@ window.utils = {
     isAuthenticated,
     onClick,
     onSubmit,
-    logout
+    logout,
+    makeAuthenticatedRequest,
+    redirectToLogin,
+    redirectToDashboard
 };
 
 // Also expose logout globally for easy access

@@ -61,9 +61,9 @@ func main() {
 	r.Handle("/categories", authMw(RequiredSeller(http.HandlerFunc(handlers.CreateCategoryHandle)))).Methods("POST")
 
 	r.Handle("/users", authMw(RequiredAdmin(http.HandlerFunc(handlers.ListOfUsersHandle)))).Methods("GET")
-	r.Handle("/users/id", authMw(RequiredAdmin(http.HandlerFunc(handlers.GetUserHandle)))).Methods("GET")
-	r.Handle("/users/id", authMw(RequiredAdmin(http.HandlerFunc(handlers.DeleteUserHandle)))).Methods("DELETE")
-	r.Handle("/users/id", authMw(RequiredAdmin(http.HandlerFunc(handlers.UpdateUserHandle)))).Methods("PUT")
+	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.GetUserHandle)))).Methods("GET")
+	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.DeleteUserHandle)))).Methods("DELETE")
+	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.UpdateUserHandle)))).Methods("PUT")
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Port),
