@@ -132,8 +132,8 @@
                                 <td>${user.id}</td>
                                 <td>${user.email}</td>
                                 <td>
-                                    <span class="badge ${getBadgeClass(user.role_id)}">
-                                        ${getRoleName(user.role_id)}
+                                    <span class="badge ${getBadgeClass(user.roleId)}">
+                                        ${getRoleName(user.roleId)}
                                     </span>
                                 </td>
                                 <td>
@@ -240,8 +240,8 @@
             method: 'DELETE',
             headers: { 'Authorization': 'Bearer ' + token }
         })
-            .then(res => res.json())
-            .then(() => {
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 utils.showAlert('Product deleted successfully!');
                 loadProducts();
             })
@@ -259,10 +259,10 @@
             method: 'DELETE',
             headers: { 'Authorization': 'Bearer ' + token }
         })
-            .then(res => res.json())
-            .then(() => {
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 utils.showAlert('User deleted successfully!');
-                loadUsers();
+                loadProducts();
             })
             .catch(err => {
                 console.error('Error deleting user:', err);
@@ -275,6 +275,9 @@
             case 1: return 'Customer';
             case 2: return 'Seller';
             case 3: return 'Admin';
+            case '1': return 'Customer';
+            case '2': return 'Seller';
+            case "3": return 'Admin';
             default: return 'Unknown';
         }
     }
@@ -284,6 +287,9 @@
             case 1: return 'badge-customer';
             case 2: return 'badge-seller';
             case 3: return 'badge-admin';
+            case '1': return 'badge-customer';
+            case '2': return 'badge-seller';
+            case "3": return 'badge-admin';
             default: return '';
         }
     }
