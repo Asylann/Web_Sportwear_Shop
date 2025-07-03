@@ -6,23 +6,48 @@
     <title>Dashboard — WebSportwareShop</title>
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/components.css" />
 </head>
 <body>
 <header class="dashboard-header">
-    <h1>Welcome to WebSportwareShop</h1>
-    <button id="logoutBtn">Logout</button>
+    <h1>🏀 Welcome to WebSportwareShop</h1>
+    <button id="logoutBtn" class="button">Logout</button>
 </header>
 
 <nav class="dashboard-nav">
-    <a id="nav-products" href="products.html">Products</a>
-    <a id="nav-seller" href="seller.html">Seller Panel</a>
-    <a id="nav-admin" href="admin.html">Admin Panel</a>
+    <a id="nav-products" href="products.html" style="display: none;">Products</a>
+    <a id="nav-seller" href="seller.html" style="display: none;">Seller Panel</a>
+    <a id="nav-admin" href="admin.html" style="display: none;">Admin Panel</a>
 </nav>
 
 <main class="dashboard-main">
     <div class="dashboard-card">
         <h2>Your Dashboard</h2>
-        <p>Choose an action from above.</p>
+        <p>Loading user information...</p>
+    </div>
+
+    <div class="dashboard-card">
+        <h2>Quick Actions</h2>
+        <div class="flex" style="gap: 10px; flex-wrap: wrap;">
+            <button id="view-products-btn" class="button" onclick="window.location.href='products.html'">
+                View Products
+            </button>
+            <button id="seller-actions-btn" class="button" style="display: none;" onclick="window.location.href='seller.html'">
+                Manage Products
+            </button>
+            <button id="admin-actions-btn" class="button" style="display: none;" onclick="window.location.href='admin.html'">
+                Admin Panel
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <h2>System Status</h2>
+        <div id="system-status">
+            <p>🟢 System Online</p>
+            <p>📊 Dashboard loaded successfully</p>
+            <p id="user-status">👤 User authenticated</p>
+        </div>
     </div>
 </main>
 
