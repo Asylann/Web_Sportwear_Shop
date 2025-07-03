@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os/signal"
@@ -32,20 +33,15 @@ func main() {
 	r := mux.NewRouter()
 	r.Use(middleware.Logging)
 
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-			if r.Method == "OPTIONS" {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
-
-			next.ServeHTTP(w, r)
-		})
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8081"}, // or []string{"*"} for dev
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
 	})
+
+	// 4) Wrap your router with CORS
+	handler := c.Handler(r)
 
 	r.HandleFunc("/signup", handlers.CreateUserHandle).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandle).Methods("POST")
@@ -71,7 +67,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Port),
-		Handler:      r,
+		Handler:      handler,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  130 * time.Second,

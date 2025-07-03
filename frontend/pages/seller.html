@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Seller Panel — WebSportwareShop</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/seller.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+</head>
+<body>
+<header>
+    <h1>Seller Dashboard</h1>
+    <button onclick="logout()">Logout</button>
+</header>
+<main>
+    <section class="seller-actions">
+        <h2>Manage Your Products</h2>
+        <!-- NOTE the form id exactly matches the JS below -->
+        <form id="add-product-form">
+            <input type="text" id="product-name" placeholder="Product Name" required />
+            <textarea id="product-description" placeholder="Description"></textarea>
+            <input type="number" id="product-price" placeholder="Price" required />
+            <input type="text" id="product-image" placeholder="Image URL" />
+            <select id="product-category" required>
+                <option value="">-- Select Category --</option>
+            </select>
+            <button type="submit">Add Product</button>
+        </form>
+        <h2>Your Products</h2>
+        <div id="seller-product-list" class="product-grid"></div>
+    </section>
+</main>
+<footer>
+    <p>&copy; 2025 WebSportwareShop</p>
+</footer>
+
+<!-- IMPORTANT: load utils & api before seller.js -->
+<script src="../js/utils.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/seller.js"></script>
+</body>
+</html>

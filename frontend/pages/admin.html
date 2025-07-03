@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | SportwareShop</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+<nav>
+    <h1>🏀 SportwareShop Admin</h1>
+    <button onclick="logout()">Logout</button>
+</nav>
+
+<div class="content">
+    <h2>Product Management</h2>
+
+    <form id="createProductForm">
+        <input type="text" id="name" placeholder="Product Name" required>
+        <input type="text" id="description" placeholder="Description" required>
+        <input type="number" id="price" placeholder="Price" step="0.01" required>
+        <input type="number" id="category" placeholder="Category ID" required>
+        <button type="submit">Create Product</button>
+    </form>
+
+    <h3>Products List</h3>
+    <div id="productsList" class="product-list"></div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script type="module" src="../js/admin.js"></script>
+<script>
+    const token = localStorage.getItem('token');
+    const roleId = localStorage.getItem('role_id');
+    if (!token || roleId !== '1') location.href = '../index.html';
+
+    document.getElementById('createProductForm').addEventListener('submit', e => {
+        e.preventDefault();
+        createProduct();
+    });
+
+    function createProduct() {
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+        const price = parseFloat(document.getElementById('price').value);
+        const categoryId = parseInt(document.getElementById('category').value);
+
+        fetch('http://localhost:8080/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ name, description, price, category_id: categoryId, imageURL: '' })
+        })
+            .then(res => res.json())
+            .then(() => {
+                loadProducts();
+                document.getElementById('createProductForm').reset();
+            });
+    }
+
+    function loadProducts() {
+        fetch('http://localhost:8080/products', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('productsList');
+                list.innerHTML = '';
+                if (data.data) {
+                    Object.values(data.data).forEach(p => {
+                        const card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.innerHTML = `<h4>${p.name}</h4><p>${p.description}</p><strong>$${p.price}</strong>`;
+                        list.appendChild(card);
+                    });
+                }
+            });
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.href = '../index.html';
+    }
+
+    loadProducts();
+</script>
+</body>
+</html>

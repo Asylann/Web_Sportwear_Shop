@@ -6,6 +6,6 @@ type Product struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Size        int     `json:"size"`
-	Category_id int     `json:"category_Id"`
+	CategoryID  int     `json:"category_id"`
 	ImageURL    string  `json:"imageURL"`
 }
