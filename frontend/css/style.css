@@ -8,16 +8,8 @@
 }
 
 body {
-    background-color: #f4f6f9;
+    background-color: #ffffff;
     color: #333;
-    background-image: url("../assets/images/bodyImage.jpeg");
-    background-size: cover;
-    /* center it so the focus stays central */
-    background-position: center center;
-    /* don’t repeat the image */
-    background-repeat: no-repeat;
-    /* keep it fixed when you scroll (optional) */
-    background-attachment: fixed;
 }
 
 a {

@@ -48,6 +48,8 @@ func main() {
 
 	r.Handle("/products", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsHandle)))).Methods("GET")
 	r.Handle("/products/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetProductHandle)))).Methods("GET")
+	r.Handle("/productsByCategory/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsByCategory)))).Methods("GET")
+	r.Handle("/productsBySeller/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsBySellerID)))).Methods("GET")
 
 	r.Handle("/products/{id}", authMw(RequiredSeller(http.HandlerFunc(handlers.DeleteProductHandle)))).Methods("DELETE")
 	r.Handle("/products/{id}", authMw(RequiredSeller(http.HandlerFunc(handlers.UpdateProductHandle)))).Methods("PUT")

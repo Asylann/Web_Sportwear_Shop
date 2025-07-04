@@ -58,7 +58,8 @@ function loadCategories() {
 
 function loadSellerProducts() {
     const token = localStorage.getItem("token");
-    fetch("http://localhost:8080/products", {
+    const userId = localStorage.getItem("userId")
+    fetch("http://localhost:8080/productsBySeller/"+userId, {
         headers: { "Authorization": "Bearer " + token },
     })
         .then(res => {
@@ -112,7 +113,8 @@ function handleProductCreation(event) {
     const priceInput = document.getElementById("product-price").value;
     const imageURL = document.getElementById("product-image").value.trim();
     const categoryId = parseInt(document.getElementById("product-category").value, 10);
-
+    const sizeInput = document.getElementById("product-size").value;
+    const userId = parseInt(localStorage.getItem("userId"),10)
     // Validation
     if (!name || !description || !priceInput) {
         utils.showAlert("Please fill in all required fields", "error");
@@ -122,6 +124,11 @@ function handleProductCreation(event) {
     const price = parseFloat(priceInput);
     if (isNaN(price) || price <= 0) {
         utils.showAlert("Please enter a valid price", "error");
+        return;
+    }
+    const size = parseFloat(sizeInput);
+    if (isNaN(size) || size < 0) {
+        utils.showAlert("Please enter a valid size", "error");
         return;
     }
 
@@ -134,8 +141,10 @@ function handleProductCreation(event) {
         name,
         description,
         price,
+        size : size,
         category_id: categoryId,
-        imageURL: imageURL || ""
+        imageURL: imageURL || "",
+        seller_id : userId
     };
 
     console.log("→ Sending payload:", payload);
@@ -181,18 +190,13 @@ function deleteProduct(productId) {
         }
     })
         .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(() => {
-            utils.showAlert("Product deleted successfully!");
-            loadSellerProducts(); // Refresh the product list
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            utils.showAlert('Product deleted successfully!');
+            loadSellerProducts();
         })
         .catch(err => {
-            console.error("Error deleting product:", err);
-            utils.showAlert("Error deleting product: " + err.message, "error");
+            console.error('Error deleting product:', err);
+            utils.showAlert('Error deleting product', 'error');
         });
 }
 

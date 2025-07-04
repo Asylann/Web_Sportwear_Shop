@@ -117,3 +117,45 @@ func UpdateProductHandle(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Product by id = %v was updated : %v", id, p)
 }
+
+func ListOfProductsByCategory(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, "can not invert str to int")
+		return
+	}
+	var products []models.Product
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	products, err = db.ListOfProductsByCategory(ctx, id)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusNotFound, nil, err.Error())
+		return
+	}
+	httpresponse.WriteJSON(w, http.StatusOK, products, "")
+	log.Printf("Products bu categoryId= %v were received", id)
+}
+
+func ListOfProductsBySellerID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, "can not invert str to int")
+		return
+	}
+	var products []models.Product
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	products, err = db.ListOfProductsBySellerID(ctx, id)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusNotFound, nil, err.Error())
+		return
+	}
+	httpresponse.WriteJSON(w, http.StatusOK, products, "")
+	log.Printf("Products by userId= %v were received", id)
+}

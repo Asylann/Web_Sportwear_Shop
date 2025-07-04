@@ -7,11 +7,13 @@ import (
 )
 
 var (
-	stmtCreateProduct *sql.Stmt
-	stmtDeleteProduct *sql.Stmt
-	stmtListOfProduct *sql.Stmt
-	stmtUpdateProduct *sql.Stmt
-	stmtGetProduct    *sql.Stmt
+	stmtCreateProduct           *sql.Stmt
+	stmtDeleteProduct           *sql.Stmt
+	stmtListOfProduct           *sql.Stmt
+	stmtUpdateProduct           *sql.Stmt
+	stmtGetProduct              *sql.Stmt
+	stmtListOfProductByCategory *sql.Stmt
+	stmtListOfProductBySellerID *sql.Stmt
 
 	stmtCreateCategory *sql.Stmt
 	stmtDeleteCategory *sql.Stmt
@@ -30,8 +32,8 @@ var (
 func initStmt(db *sql.DB) {
 	var err error
 	stmtCreateProduct, err = db.PrepareContext(context.Background(),
-		`INSERT INTO products (name, description, category_id,size, price, imageurl)
-	VALUES($1,$2,$3,$4,$5,$6)`)
+		`INSERT INTO products (name, description, category_id,size, price, imageurl, seller_id)
+	VALUES($1,$2,$3,$4,$5,$6,$7)`)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
@@ -49,13 +51,25 @@ func initStmt(db *sql.DB) {
 		return
 	}
 	stmtUpdateProduct, err = db.PrepareContext(context.Background(),
-		`UPDATE products SET name= $2, description=$3,size=$4, price=$5, imageurl=$6,category_id=$7 WHERE id= $1`)
+		`UPDATE products SET name= $2, description=$3,size=$4, price=$5, imageurl=$6,category_id=$7, seller_id=$8 WHERE id= $1`)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
 	stmtGetProduct, err = db.PrepareContext(context.Background(),
 		`SELECT * FROM products WHERE id=$1`)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	stmtListOfProductByCategory, err = db.PrepareContext(context.Background(),
+		`SELECT * FROM products WHERE category_id=$1`)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	stmtListOfProductBySellerID, err = db.PrepareContext(context.Background(),
+		`SELECT * FROM products WHERE seller_id=$1`)
 	if err != nil {
 		log.Fatal(err.Error())
 		return

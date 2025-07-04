@@ -45,6 +45,11 @@
             </div>
 
             <div class="form-group">
+                <label for="size">Size</label>
+                <input type="number" id="size" placeholder="size" step="0.01">
+            </div>
+
+            <div class="form-group">
                 <label for="category">Category</label>
                 <select id="category" required>
                     <option value="">-- Select Category --</option>
@@ -199,13 +204,16 @@
         const price = parseFloat(document.getElementById('price').value);
         const categoryId = parseInt(document.getElementById('category').value);
         const imageURL = document.getElementById('imageURL').value.trim();
-
+        const userId = parseInt(localStorage.getItem("userId"),10)
+        const size = parseFloat(document.getElementById("size").value);
         const payload = {
             name,
             description,
             price,
+            size : size,
             category_id: categoryId,
-            imageURL: imageURL || ""
+            imageURL: imageURL || "",
+            seller_id: userId
         };
 
         fetch('http://localhost:8080/products', {

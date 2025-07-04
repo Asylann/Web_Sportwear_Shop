@@ -64,9 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const payload = JSON.parse(atob(token.split(".")[1]));
                     const roleId = parseInt(payload.role_id, 10);
+                    const userId = parseInt(payload.sub, 10);
 
                     localStorage.setItem("token", token);
                     localStorage.setItem("roleId", roleId);
+                    localStorage.setItem("email", email);
+                    localStorage.setItem("userId", userId);
 
                     redirectToDashboard();
                 } catch (jwtError) {

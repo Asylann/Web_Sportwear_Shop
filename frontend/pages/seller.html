@@ -20,7 +20,8 @@
         <form id="add-product-form">
             <input type="text" id="product-name" placeholder="Product Name" required />
             <textarea id="product-description" placeholder="Description"></textarea>
-            <input type="number" id="product-price" placeholder="Price" required />
+            <input type="number" id="product-price" placeholder="Price" step="0.01" required />
+            <input type="number" id="product-size" placeholder="Size"/>
             <input type="text" id="product-image" placeholder="Image URL" />
             <select id="product-category" required>
                 <option value="">-- Select Category --</option>

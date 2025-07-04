@@ -21,6 +21,8 @@ window.addEventListener("DOMContentLoaded", () => {
 function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("email")
+    localStorage.removeItem("userId")
     window.location.href = "/index.html";
 }
 
