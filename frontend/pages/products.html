@@ -20,6 +20,11 @@
 <main class="dashboard-main">
     <div class="dashboard-card">
         <h2>All Products</h2>
+        <select id="product-category" required>
+            <option value="">-- Select Category --</option>
+        </select>
+
+
         <div id="productsList" class="product-grid"></div>
     </div>
 </main>
@@ -31,8 +36,19 @@
         if (!utils.checkAuth()) return;
         if (!utils.checkRole(1, 2, 3)) return;
 
+        loadCategories();
         fetchProducts();
+
+        document.getElementById("product-category").addEventListener("change", () => {
+            const categoryId = parseInt(document.getElementById("product-category").value, 10);
+            if (!categoryId) {
+                fetchProducts();
+            } else {
+                fetchProductsByCategory(categoryId);
+            }
+        });
     });
+
 
     function fetchProducts() {
         const token = localStorage.getItem('token');
@@ -80,6 +96,77 @@
             .catch(err => {
                 console.error('Error fetching products:', err);
                 utils.showAlert('Error loading products: ' + err.message, 'error');
+            });
+    }
+    function fetchProductsByCategory(CategoryId) {
+        const token = localStorage.getItem('token');
+
+        fetch(`http://localhost:8080/productsByCategory/${CategoryId}`, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                const list = document.getElementById('productsList');
+                list.innerHTML = '';
+
+                if (data.data) {
+                    const products = Array.isArray(data.data) ? data.data : Object.values(data.data);
+
+                    if (products.length === 0) {
+                        list.innerHTML = '<p>No products found.</p>';
+                        return;
+                    }
+
+                    products.forEach(p => {
+                        const card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.innerHTML = `
+                            ${p.imageURL ? `<img src="${p.imageURL}" alt="${p.name}" />` : ''}
+                            <div class="info">
+                                <h3>${p.name}</h3>
+                                <p>${p.description}</p>
+                                <div class="price">${p.price} ₸</div>
+                            </div>
+                        `;
+                        list.appendChild(card);
+                    });
+                } else {
+                    list.innerHTML = '<p>No products found.</p>';
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching products:', err);
+                utils.showAlert('Error loading products: ' + err.message, 'error');
+            });
+    }
+
+    function loadCategories() {
+        const token = localStorage.getItem('token');
+        fetch('http://localhost:8080/categories', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('product-category');
+                if (data.data) {
+                    data.data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Error loading categories:', err);
+                utils.showAlert('Error loading categories', 'error');
             });
     }
 </script>

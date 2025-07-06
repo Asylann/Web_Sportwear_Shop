@@ -202,3 +202,4 @@ function deleteProduct(productId) {
 
 // Make deleteProduct available globally
 window.deleteProduct = deleteProduct;
+window.loadCategories = loadCategories;

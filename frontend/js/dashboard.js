@@ -5,14 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("token");
     const roleId = parseInt(localStorage.getItem("roleId"), 10);
     const email = localStorage.getItem("email")
-    const userId = localStorage.getItem("userId")
     if (!token) {
         alert("Please log in first.");
         return window.location.href = "/index.html";
     }
 
     // 2) Display user role information
-    displayUserInfo(roleId,email,userId);
+    displayUserInfo(roleId,email);
 
     // 3) Always show products link
     document.getElementById("nav-products").style.display = "inline-block";
@@ -50,7 +49,6 @@ function displayUserInfo(roleId,email,userId) {
         userInfoContainer.innerHTML = `
             <strong>Your Email:</strong> ${email}<br>
             <strong>Your Role:</strong> ${roleName}<br>
-            <strong>Your ID:</strong> ${userId}<br>
             <strong>Available Actions:</strong><br>
             • View Products (all users)<br>
             ${roleId >= 2 ? '• Manage Products (sellers/admins)<br>' : ''}
