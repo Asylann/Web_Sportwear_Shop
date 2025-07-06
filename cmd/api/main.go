@@ -62,6 +62,8 @@ func main() {
 	r.Handle("/categories/{id}", authMw(RequiredSeller(http.HandlerFunc(handlers.UpdateCategoryHandle)))).Methods("PUT")
 	r.Handle("/categories", authMw(RequiredSeller(http.HandlerFunc(handlers.CreateCategoryHandle)))).Methods("POST")
 
+	r.Handle("/userEmail/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetUserEmailHandle)))).Methods("GET")
+
 	r.Handle("/users", authMw(RequiredAdmin(http.HandlerFunc(handlers.ListOfUsersHandle)))).Methods("GET")
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.GetUserHandle)))).Methods("GET")
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.DeleteUserHandle)))).Methods("DELETE")

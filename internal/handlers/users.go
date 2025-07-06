@@ -173,3 +173,24 @@ func UpdateUserHandle(w http.ResponseWriter, r *http.Request) {
 	httpresponse.WriteJSON(w, http.StatusOK, u, "")
 	log.Printf("User by id = %v was updated : %v", id, u)
 }
+
+func GetUserEmailHandle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	var email string
+	email, err = db.GetUserEmail(ctx, id)
+	if err != nil {
+		log.Fatal(err.Error())
+		httpresponse.WriteJSON(w, http.StatusNotFound, nil, err.Error())
+		return
+	}
+	httpresponse.WriteJSON(w, http.StatusOK, email, "")
+	log.Printf("User`s email by id = %v was recieved \n", id)
+}

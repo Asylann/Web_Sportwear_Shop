@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | SportwareShop</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/product-detail.css">
+</head>
+<body>
+<header class="dashboard-header">
+  <h1>🏀 SportwareShop - Product Details</h1>
+  <div>
+    <a href="products.html" class="button" style="margin-right: 10px;">Back to Products</a>
+    <a href="dashboard.html" class="button" style="margin-right: 10px;">Dashboard</a>
+    <button onclick="logout()" class="button">Logout</button>
+  </div>
+</header>
+
+<main class="dashboard-main">
+  <div id="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading product details...</p>
+  </div>
+
+  <div id="product-detail" class="product-detail-container" style="display: none;">
+    <div class="product-detail-card">
+      <div class="product-image-section">
+        <img id="product-image" src="" alt="Product Image" class="product-detail-image">
+      </div>
+
+      <div class="product-info-section">
+        <h1 id="product-name" class="product-title"></h1>
+        <p id="product-price" class="product-price"></p>
+        <p id="product-description" class="product-description"></p>
+
+        <div class="product-meta">
+          <div class="meta-item">
+            <span class="meta-label">Category:</span>
+            <span id="product-category" class="meta-value"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Stock:</span>
+            <span id="product-stock" class="meta-value"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Size:</span>
+            <span id="product-size" class="meta-value"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Seller:</span>
+            <span id="product-seller" class="meta-value"></span>
+          </div>
+        </div>
+
+        <div class="product-actions">
+          <button id="add-to-cart-btn" class="button-primary large-button">
+            Add to Cart
+          </button>
+          <button id="buy-now-btn" class="button-primary large-button outline">
+            Buy Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-message" class="error-container" style="display: none;">
+    <div class="error-card">
+      <h2>Product Not Found</h2>
+      <p>The product you're looking for doesn't exist or has been removed.</p>
+      <a href="products.html" class="button-primary">Back to Products</a>
+    </div>
+  </div>
+</main>
+
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!utils.checkAuth()) return;
+    if (!utils.checkRole(1, 2, 3)) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    if (!productId) {
+      showError();
+      return;
+    }
+
+    loadProductDetail(productId);
+  });
+
+  function loadProductDetail(productId) {
+    const token = localStorage.getItem('token');
+
+    fetch(`http://localhost:8080/products/${productId}`, {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+              }
+              return res.json();
+            })
+            .then(data => {
+              if (data.data) {
+                displayProductDetail(data.data);
+              } else {
+                showError();
+              }
+            })
+            .catch(err => {
+              console.error('Error fetching product:', err);
+              showError();
+            });
+  }
+
+  async function CategoryInfo(CategoryId) {
+    const token = localStorage.getItem('token');
+
+    try {
+      const res = await fetch(`http://localhost:8080/categories/${CategoryId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      return data.data;
+    } catch (err) {
+      console.error('Error fetching category:', err);
+      showError();
+    }
+  }
+
+  async function SellerInfo(SellerId) {
+    const token = localStorage.getItem('token');
+
+    try {
+      const res = await fetch(`http://localhost:8080/userEmail/${SellerId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      return data.data;
+    } catch (err) {
+      console.error('Error fetching category:', err);
+      showError();
+    }
+  }
+
+  async function displayProductDetail(product) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('product-detail').style.display = 'block';
+
+    const imageElement = document.getElementById('product-image');
+    if (product.imageURL) {
+      imageElement.src = product.imageURL;
+      imageElement.alt = product.name;
+    } else {
+      imageElement.src = '../images/placeholder.png';
+      imageElement.alt = 'No image available';
+    }
+
+    // Wait for category info to load
+    const categoryInfo = await CategoryInfo(product.category_id);
+    const sellerEmail = await SellerInfo(product.seller_id)
+    // Set product information
+    document.getElementById('product-name').textContent = product.name;
+    document.getElementById('product-price').textContent = `${product.price} ₸`;
+    document.getElementById('product-description').textContent = product.description;
+    document.getElementById('product-size').textContent = `${product.size}`;
+
+    // Set product meta information
+    document.getElementById('product-category').textContent = categoryInfo ? categoryInfo.name : 'N/A';
+    document.getElementById('product-stock').textContent = product.stock || 'In Stock';
+    document.getElementById('product-seller').textContent = sellerEmail ? sellerEmail : 'N/A';
+
+    document.title = `${product.name} | SportwearShop`;
+
+    document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+      utils.showAlert('Added to cart!', 'success');
+    });
+
+    document.getElementById('buy-now-btn').addEventListener('click', () => {
+      utils.showAlert('Redirecting to checkout...', 'success');
+    });
+  }
+
+</script>
+</body>
+</html>

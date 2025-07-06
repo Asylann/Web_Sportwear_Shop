@@ -27,6 +27,7 @@ var (
 	stmtUpdateUser     *sql.Stmt
 	stmtGetUser        *sql.Stmt
 	stmtGetUserByEmail *sql.Stmt
+	stmtGetUserEmail   *sql.Stmt
 )
 
 func initStmt(db *sql.DB) {
@@ -140,6 +141,12 @@ func initStmt(db *sql.DB) {
 	}
 	stmtGetUserByEmail, err = db.PrepareContext(context.Background(),
 		`SELECT * FROM users WHERE email=$1`)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	stmtGetUserEmail, err = db.PrepareContext(context.Background(),
+		`SELECT email FROM users WHERE ID=$1`)
 	if err != nil {
 		log.Fatal(err.Error())
 		return

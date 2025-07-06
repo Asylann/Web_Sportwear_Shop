@@ -54,3 +54,12 @@ func GetUser(ctx context.Context, id int) (models.User, error) {
 	}
 	return u, err
 }
+
+func GetUserEmail(ctx context.Context, id int) (string, error) {
+	var u models.User
+	err := stmtGetUserEmail.QueryRowContext(ctx, id).Scan(&u.Email)
+	if err != nil {
+		return "", err
+	}
+	return u.Email, err
+}
