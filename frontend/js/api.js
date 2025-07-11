@@ -6,13 +6,14 @@ function apiRequest(endpoint, method = "GET", body = null) {
     headers.append("Content-Type", "application/json");
 
     const token = localStorage.getItem("token");
-    if (token) {
-        headers.append("Authorization", `Bearer ${token}`);
+    if (!token) {
+        throw new Error("No authentication token found");
     }
 
     const options = {
         method,
         headers,
+        credential: "include",
     };
 
     if (body) {
@@ -111,7 +112,7 @@ function makeAuthenticatedRequest(endpoint, method = "GET", body = null) {
 
     const headers = {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        credential : "include",
     };
 
     const options = {

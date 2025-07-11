@@ -2,6 +2,7 @@
 
 // ensure this matches the form id in your HTML
 const FORM_ID = "add-product-form";
+const FORM_ID_CATEGORY = "add-category-form"
 
 document.addEventListener("DOMContentLoaded", () => {
     // Check authentication and role
@@ -17,13 +18,19 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error(`Form with id="${FORM_ID}" not found!`);
         return;
     }
+    const form_category = document.getElementById(FORM_ID_CATEGORY);
+    if (!form) {
+        console.error(`Form with id="${FORM_ID_CATEGORY}" not found!`);
+        return;
+    }
     form.addEventListener("submit", handleProductCreation);
+    form_category.addEventListener("submit", handleCategoryCreation);
 });
 
 function loadCategories() {
     const token = localStorage.getItem("token");
     fetch("http://localhost:8080/categories", {
-        headers: { "Authorization": "Bearer " + token },
+        credentials: "include"
     })
         .then(res => {
             if (!res.ok) {
@@ -60,7 +67,7 @@ function loadSellerProducts() {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId")
     fetch("http://localhost:8080/productsBySeller/"+userId, {
-        headers: { "Authorization": "Bearer " + token },
+        credentials : "include",
     })
         .then(res => {
             if (!res.ok) {
@@ -151,10 +158,7 @@ function handleProductCreation(event) {
 
     fetch("http://localhost:8080/products", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
+        credentials : "include",
         body: JSON.stringify(payload),
     })
         .then(async res => {
@@ -176,6 +180,51 @@ function handleProductCreation(event) {
         });
 }
 
+
+function handleCategoryCreation(event) {
+    event.preventDefault();
+    console.log("[seller.js] handleCategoryCreation fired");
+
+    const token = localStorage.getItem("token");
+    const name = document.getElementById("category-name").value.trim();
+    const description = document.getElementById("category-description").value.trim();
+    // Validation
+    if (!name || !description) {
+        utils.showAlert("Please fill in all required fields", "error");
+        return;
+    }
+
+    const payload = {
+        name,
+        description,
+    };
+
+    console.log("→ Sending payload:", payload);
+
+    fetch("http://localhost:8080/categories", {
+        method: "POST",
+        credentials : "include",
+        body: JSON.stringify(payload),
+    })
+        .then(async res => {
+            console.log("← Response status:", res.status);
+            const body = await res.json().catch(() => ({}));
+            console.log("← Response body:", body);
+
+            if (!res.ok) {
+                throw new Error(body.error || `HTTP ${res.status}`);
+            }
+
+            utils.showAlert("Category created successfully!");
+            document.getElementById(FORM_ID).reset();
+            loadSellerProducts(); // Refresh the product list
+        })
+        .catch(err => {
+            console.error("Error creating Category:", err);
+            utils.showAlert("Error: " + err.message, "error");
+        });
+}
+
 // Global function to delete products
 function deleteProduct(productId) {
     if (!confirm("Are you sure you want to delete this product?")) {
@@ -185,9 +234,7 @@ function deleteProduct(productId) {
     const token = localStorage.getItem("token");
     fetch(`http://localhost:8080/products/${productId}`, {
         method: "DELETE",
-        headers: {
-            "Authorization": "Bearer " + token
-        }
+        credentials : "include",
     })
         .then(res => {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);

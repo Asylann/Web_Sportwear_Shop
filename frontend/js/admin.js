@@ -74,9 +74,7 @@ function testApiConnection() {
 
     // Test with a simple API call
     fetch("http://localhost:8080/categories", {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
+        credentials : "include",
     })
         .then(response => {
             console.log("API test response status:", response.status);

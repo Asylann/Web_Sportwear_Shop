@@ -10,10 +10,9 @@
 </head>
 <body>
 <header class="dashboard-header">
-    <h1>🏀 SportwareShop Admin Panel</h1>
+    <h1>🏀 SportwearShop Admin Panel</h1>
     <div>
         <a href="dashboard.html" class="button" style="margin-right: 10px;">Dashboard</a>
-        <button onclick="logout()" class="button">Logout</button>
     </div>
 </header>
 
@@ -27,42 +26,6 @@
 
     <div class="dashboard-card">
         <h2>Product Management</h2>
-
-        <form id="createProductForm" class="form-container">
-            <div class="form-group">
-                <label for="name">Product Name</label>
-                <input type="text" id="name" placeholder="Product Name" required>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" placeholder="Description" required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="price">Price</label>
-                <input type="number" id="price" placeholder="Price" step="0.01" required>
-            </div>
-
-            <div class="form-group">
-                <label for="size">Size</label>
-                <input type="number" id="size" placeholder="size" step="0.01">
-            </div>
-
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select id="category" required>
-                    <option value="">-- Select Category --</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="imageURL">Image URL</label>
-                <input type="url" id="imageURL" placeholder="Image URL (optional)">
-            </div>
-
-            <button type="submit" class="button">Create Product</button>
-        </form>
 
         <h3>Products List</h3>
         <div id="productsList" class="product-grid"></div>
@@ -89,7 +52,7 @@
     function loadCategories() {
         const token = localStorage.getItem('token');
         fetch('http://localhost:8080/categories', {
-            headers: { 'Authorization': 'Bearer ' + token }
+            credentials : "include"
         })
             .then(res => res.json())
             .then(data => {
@@ -112,7 +75,7 @@
     function loadUsers() {
         const token = localStorage.getItem('token');
         fetch('http://localhost:8080/users', {
-            headers: { 'Authorization': 'Bearer ' + token }
+            credentials : "include"
         })
             .then(res => res.json())
             .then(data => {
@@ -162,7 +125,7 @@
     function loadProducts() {
         const token = localStorage.getItem('token');
         fetch('http://localhost:8080/products', {
-            headers: { 'Authorization': 'Bearer ' + token }
+            credentials : "include"
         })
             .then(res => res.json())
             .then(data => {
@@ -195,58 +158,13 @@
             });
     }
 
-    function handleCreateProduct(e) {
-        e.preventDefault();
-
-        const token = localStorage.getItem('token');
-        const name = document.getElementById('name').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const price = parseFloat(document.getElementById('price').value);
-        const categoryId = parseInt(document.getElementById('category').value);
-        const imageURL = document.getElementById('imageURL').value.trim();
-        const userId = parseInt(localStorage.getItem("userId"),10)
-        const size = parseFloat(document.getElementById("size").value);
-        const payload = {
-            name,
-            description,
-            price,
-            size : size,
-            category_id: categoryId,
-            imageURL: imageURL || "",
-            seller_id: userId
-        };
-
-        fetch('http://localhost:8080/products', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    utils.showAlert(data.error, 'error');
-                } else {
-                    utils.showAlert('Product created successfully!');
-                    document.getElementById('createProductForm').reset();
-                    loadProducts();
-                }
-            })
-            .catch(err => {
-                console.error('Error creating product:', err);
-                utils.showAlert('Error creating product', 'error');
-            });
-    }
-
     function deleteProduct(productId) {
         if (!confirm('Are you sure you want to delete this product?')) return;
 
         const token = localStorage.getItem('token');
         fetch(`http://localhost:8080/products/${productId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token }
+            credentials : "include"
         })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -265,7 +183,7 @@
         const token = localStorage.getItem('token');
         fetch(`http://localhost:8080/users/${userId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token }
+            credentials : "include"
         })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);

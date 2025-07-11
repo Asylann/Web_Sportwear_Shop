@@ -40,11 +40,14 @@ func main() {
 		AllowCredentials: true,
 	})
 
-	// 4) Wrap your router with CORS
 	handler := c.Handler(r)
 
 	r.HandleFunc("/signup", handlers.CreateUserHandle).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandle).Methods("POST")
+	r.HandleFunc("/auth/google/login", handlers.GoogleLoginHandle).Methods("GET")
+	r.HandleFunc("/auth/google/callback", handlers.GoogleLoggedInHandle).Methods("GET")
+
+	r.Handle("/logout", authMw(http.HandlerFunc(handlers.LogoutHandle))).Methods("POST")
 
 	r.Handle("/products", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsHandle)))).Methods("GET")
 	r.Handle("/products/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetProductHandle)))).Methods("GET")
@@ -62,7 +65,7 @@ func main() {
 	r.Handle("/categories/{id}", authMw(RequiredSeller(http.HandlerFunc(handlers.UpdateCategoryHandle)))).Methods("PUT")
 	r.Handle("/categories", authMw(RequiredSeller(http.HandlerFunc(handlers.CreateCategoryHandle)))).Methods("POST")
 
-	r.Handle("/userEmail/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetUserEmailHandle)))).Methods("GET")
+	r.Handle("/users/email/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetUserEmailHandle)))).Methods("GET")
 
 	r.Handle("/users", authMw(RequiredAdmin(http.HandlerFunc(handlers.ListOfUsersHandle)))).Methods("GET")
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.GetUserHandle)))).Methods("GET")

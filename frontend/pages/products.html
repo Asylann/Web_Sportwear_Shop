@@ -139,10 +139,9 @@
 </head>
 <body>
 <header class="dashboard-header">
-    <h1>🏀 SportwareShop - Products</h1>
+    <h1>🏀 SportwearShop - Products</h1>
     <div>
         <a href="dashboard.html" class="button" style="margin-right: 10px;">Dashboard</a>
-        <button onclick="logout()" class="button">Logout</button>
     </div>
 </header>
 
@@ -196,12 +195,9 @@
     });
 
     function fetchProducts() {
-        const token = localStorage.getItem('token');
 
         fetch('http://localhost:8080/products', {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
+            credentials: "include"
         })
             .then(res => {
                 if (!res.ok) {
@@ -219,12 +215,9 @@
     }
 
     function fetchProductsByCategory(categoryId) {
-        const token = localStorage.getItem('token');
 
         fetch(`http://localhost:8080/productsByCategory/${categoryId}`, {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
+            credentials: "include"
         })
             .then(res => {
                 if (!res.ok) {
@@ -298,9 +291,8 @@
     }
 
     function loadCategories() {
-        const token = localStorage.getItem('token');
         fetch('http://localhost:8080/categories', {
-            headers: { 'Authorization': 'Bearer ' + token }
+            credentials: "include"
         })
             .then(res => res.json())
             .then(data => {

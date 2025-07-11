@@ -147,12 +147,22 @@ function isAuthenticated() {
 // Global logout function
 function logout() {
     console.log("Logging out...");
-    clearToken();
-    showAlert("You have been logged out.", "success");
-    setTimeout(() => {
-        redirectToLogin();
-    }, 1000);
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("email");
+    localStorage.removeItem("userId");
+    fetch("http://localhost:8080/logout", {
+        method: "POST",
+        credentials: "include"
+    }).then(() => {
+        showAlert("You have been logged out.", "success");
+        setTimeout(() => {
+            redirectToLogin();
+        }, 1000);
+    });
+    window.location.href = "/index.html";
 }
+
 
 // Attach event listener helper
 function onClick(selector, callback) {
@@ -172,26 +182,14 @@ function onSubmit(selector, callback) {
 
 // Enhanced API request with better error handling
 function makeAuthenticatedRequest(endpoint, options = {}) {
-    const token = getToken();
-
-    if (!token) {
-        throw new Error("No authentication token found");
-    }
-
-    const headers = {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-        ...options.headers
-    };
-
     return fetch(`http://localhost:8080${endpoint}`, {
         ...options,
-        headers
+        credentials: "include" // <— just this
     }).then(response => {
         if (response.status === 401) {
-            console.error("Unauthorized access - token invalid or expired");
-            clearToken();
-            showAlert("Session expired. Please log in again.", "error");
+            console.error("Unauthorized access - not logged in");
+            utils.clearToken();
+            utils.showAlert("Session expired. Please log in again.", "error");
             setTimeout(() => {
                 redirectToLogin();
             }, 2000);
@@ -200,7 +198,7 @@ function makeAuthenticatedRequest(endpoint, options = {}) {
 
         if (response.status === 403) {
             console.error("Forbidden access - insufficient permissions");
-            showAlert("You don't have permission to perform this action.", "error");
+            utils.showAlert("You don't have permission to perform this action.", "error");
             throw new Error("Forbidden");
         }
 
@@ -211,6 +209,7 @@ function makeAuthenticatedRequest(endpoint, options = {}) {
         return response.json();
     });
 }
+
 
 // Expose utilities globally
 window.utils = {

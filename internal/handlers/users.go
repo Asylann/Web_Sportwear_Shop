@@ -1,71 +1,17 @@
 package handlers
 
 import (
-	"WebSportwareShop/internal/config"
 	"WebSportwareShop/internal/db"
 	"WebSportwareShop/internal/httpresponse"
 	"WebSportwareShop/internal/models"
 	"context"
 	"encoding/json"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
-
-type loginReq struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-func LoginHandle(w http.ResponseWriter, r *http.Request) {
-	var req loginReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-	defer cancel()
-	userInDB, err := db.GetUserByEmail(ctx, req.Email)
-	if err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
-		return
-	}
-
-	if userInDB.Password != req.Password {
-		httpresponse.WriteJSON(w, http.StatusUnauthorized, nil, "invalid password")
-		return
-	}
-
-	claims := jwt.MapClaims{
-		"sub":     userInDB.ID,
-		"role_id": userInDB.RoleId,
-		"exp":     time.Now().Add(2 * time.Hour).Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
-		return
-	}
-	signed, err := token.SignedString([]byte(cfg.JWTSecret))
-	if err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(w, http.StatusInternalServerError, nil, err.Error())
-		return
-	}
-
-	log.Printf("User by email: %v loged in!", userInDB.Email)
-	httpresponse.WriteJSON(w, http.StatusOK, map[string]string{"token": signed}, "")
-}
 
 func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 	var u models.User

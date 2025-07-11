@@ -27,6 +27,15 @@ function redirectToDashboard() {
     window.location.href = "pages/dashboard.html";
 }
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+    }
+    return null;
+}
+
 // Handle login form submission
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
@@ -42,24 +51,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 showError("Please fill in all fields");
                 return;
             }
+            if (password=="nullByGoogle"){
+                showError("Please try other passwords");
+                return
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
+                    credentials: "include"
                 });
 
-                const result = await res.json();
 
-                if (!res.ok) {
-                    showError(result.error || "Login failed");
+                // successful login: store token
+                const token = getCookie("auth_token");
+                if (!token) {
+                    showError("UnAuthorized, please sing up firstly!");
                     return;
                 }
-
-                // successful login: store token + roleId
-                const token = result.data.token;
-
                 // Decode JWT to get role
                 try {
                     const payload = JSON.parse(atob(token.split(".")[1]));
@@ -122,3 +133,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+function loginWithGoogle() {
+
+    window.location.href = "http://localhost:8080/auth/google/login";
+}
