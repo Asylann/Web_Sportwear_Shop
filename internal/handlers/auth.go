@@ -8,7 +8,9 @@ import (
 	"WebSportwareShop/internal/models"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/markbates/goth/gothic"
 	"golang.org/x/oauth2"
 	"log"
 	"net/http"
@@ -126,6 +128,48 @@ func GoogleLoggedInHandle(w http.ResponseWriter, r *http.Request) {
 	} else {
 		httpresponse.WriteJSON(w, http.StatusOK, "Singed up!", "")
 	}
+}
+
+func GithubLoginHandle(res http.ResponseWriter, req *http.Request) {
+	if _, err := gothic.CompleteUserAuth(res, req); err != nil {
+		gothic.BeginAuthHandler(res, req)
+	}
+}
+
+func GithubLoggedInHandle(res http.ResponseWriter, req *http.Request) {
+	user, err := gothic.CompleteUserAuth(res, req)
+	if err != nil {
+		fmt.Fprintln(res, err)
+		return
+	}
+	ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
+	defer cancel()
+	_, err = db.GetUserByEmail(ctx, user.Email)
+	if err != nil {
+		var u = models.User{Email: user.Email, Password: "nullByGithub", RoleId: 1}
+		err = db.CreateUser(ctx, &u)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(res, "Error during creation of User", http.StatusInternalServerError)
+		}
+		log.Printf("User was created %v \n", u)
+	}
+	userInDB, _ := db.GetUserByEmail(context.Background(), user.Email)
+	tokenStr, err := middleware.Generate(userInDB.ID, userInDB.Email, userInDB.RoleId)
+	log.Println(userInDB)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(res, "Error during creation of token", http.StatusInternalServerError)
+	}
+	http.SetCookie(res, &http.Cookie{
+		Name:     "auth_token",
+		Value:    tokenStr,
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	log.Printf("User by email %v logged in!", userInDB.Email)
+	http.Redirect(res, req, "http://localhost:8081/pages/dashboard.html", http.StatusSeeOther)
 }
 
 func LogoutHandle(w http.ResponseWriter, r *http.Request) {

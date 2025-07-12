@@ -23,6 +23,7 @@ func main() {
 		return
 	}
 	db.InitDB(cfg)
+	config.InitGithubConfig()
 	defer db.CloseDB()
 
 	authMw := middleware.JWTAuth(cfg.JWTSecret)
@@ -46,6 +47,8 @@ func main() {
 	r.HandleFunc("/login", handlers.LoginHandle).Methods("POST")
 	r.HandleFunc("/auth/google/login", handlers.GoogleLoginHandle).Methods("GET")
 	r.HandleFunc("/auth/google/callback", handlers.GoogleLoggedInHandle).Methods("GET")
+	r.HandleFunc("/auth/{provider}/login", handlers.GithubLoginHandle).Methods("GET")
+	r.HandleFunc("/auth/{provider}/callback", handlers.GithubLoggedInHandle).Methods("GET")
 
 	r.Handle("/logout", authMw(http.HandlerFunc(handlers.LogoutHandle))).Methods("POST")
 

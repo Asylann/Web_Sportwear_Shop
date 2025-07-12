@@ -3,10 +3,23 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/github"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"os"
 )
+
+type ProviderIndex struct {
+	Providers    []string
+	ProvidersMap map[string]string
+}
+
+func InitGithubConfig() {
+	goth.UseProviders(
+		github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_CLIENT_SECRET"), "http://localhost:8080/auth/github/callback", "read:user", "user:email"),
+	)
+}
 
 var GoogleOAuthConfig = &oauth2.Config{
 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),

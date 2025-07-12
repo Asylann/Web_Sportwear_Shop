@@ -94,6 +94,33 @@ body {
 .button:hover {
     background-color: #4f46e5;
 }
+.social-login-container {
+    display: flex;
+    gap: 12px; /* space between buttons */
+    margin-top: 5px;
+}
+
+.social-login-btn {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.social-login-btn img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+}
+
+.social-login-btn:hover {
+    background-color: #f0f0f0;
+}
 
 .error-message {
     color: #ef4444;

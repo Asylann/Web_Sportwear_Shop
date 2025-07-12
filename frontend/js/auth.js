@@ -138,3 +138,8 @@ function loginWithGoogle() {
 
     window.location.href = "http://localhost:8080/auth/google/login";
 }
+
+function loginWithGithub() {
+
+    window.location.href = "http://localhost:8080/auth/github/login";
+}
