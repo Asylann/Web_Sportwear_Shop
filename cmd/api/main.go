@@ -45,10 +45,8 @@ func main() {
 
 	r.HandleFunc("/signup", handlers.CreateUserHandle).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandle).Methods("POST")
-	r.HandleFunc("/auth/google/login", handlers.GoogleLoginHandle).Methods("GET")
-	r.HandleFunc("/auth/google/callback", handlers.GoogleLoggedInHandle).Methods("GET")
-	r.HandleFunc("/auth/{provider}/login", handlers.GithubLoginHandle).Methods("GET")
-	r.HandleFunc("/auth/{provider}/callback", handlers.GithubLoggedInHandle).Methods("GET")
+	r.HandleFunc("/auth/{provider}/login", handlers.ProviderLoginHandle).Methods("GET")
+	r.HandleFunc("/auth/{provider}/callback", handlers.ProviderLoggedInHandle).Methods("GET")
 
 	r.Handle("/logout", authMw(http.HandlerFunc(handlers.LogoutHandle))).Methods("POST")
 

@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/gorilla/mux"
 	"github.com/markbates/goth/gothic"
-	"golang.org/x/oauth2"
 	"log"
 	"net/http"
 	"time"
@@ -61,82 +61,13 @@ func LoginHandle(w http.ResponseWriter, r *http.Request) {
 	httpresponse.WriteJSON(w, http.StatusOK, "Logged in!", "")
 }
 
-func GoogleLoginHandle(w http.ResponseWriter, r *http.Request) {
-	url := config.GoogleOAuthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	http.Redirect(w, r, url, http.StatusFound)
+func ProviderLoginHandle(res http.ResponseWriter, req *http.Request) {
+	gothic.BeginAuthHandler(res, req)
 }
 
-func GoogleLoggedInHandle(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-	defer cancel()
-
-	code := r.URL.Query().Get("code")
-
-	token, err := config.GoogleOAuthConfig.Exchange(ctx, code)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-
-	client := config.GoogleOAuthConfig.Client(ctx, token)
-	resp, _ := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
-	defer resp.Body.Close()
-
-	var profile struct {
-		Sub   string `json:"sub"`
-		Email string `json:"email"`
-		Name  string `json:"name"`
-	}
-	json.NewDecoder(resp.Body).Decode(&profile)
-
-	ctx, cancel = context.WithTimeout(r.Context(), 2*time.Second)
-	defer cancel()
-	user, err := db.GetUserByEmail(ctx, profile.Email)
-	IsCreatedUser := false
-	if err != nil {
-		var u = models.User{
-			Email:    profile.Email,
-			Password: "nullByGoogle",
-			RoleId:   1,
-		}
-		err = db.CreateUser(ctx, &u)
-		if err != nil {
-			log.Println(err.Error())
-			httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
-			return
-		}
-		log.Printf("User was created! : %v \n", u)
-		IsCreatedUser = true
-	}
-
-	jwtToken, err := middleware.Generate(user.ID, profile.Email, 1)
-	if err != nil {
-		log.Println("JWT token generation failed!")
-		return
-	}
-	http.SetCookie(w, &http.Cookie{
-		Name:     "auth_token",
-		Value:    jwtToken,
-		Path:     "/",
-		SameSite: http.SameSiteLaxMode,
-	})
-
-	log.Printf("User by email: %v loged in!", profile.Email)
-	http.Redirect(w, r, "http://localhost:8081/pages/dashboard.html", http.StatusSeeOther)
-
-	if !IsCreatedUser {
-		httpresponse.WriteJSON(w, http.StatusOK, "Logged in!", "")
-	} else {
-		httpresponse.WriteJSON(w, http.StatusOK, "Singed up!", "")
-	}
-}
-
-func GithubLoginHandle(res http.ResponseWriter, req *http.Request) {
-	if _, err := gothic.CompleteUserAuth(res, req); err != nil {
-		gothic.BeginAuthHandler(res, req)
-	}
-}
-
-func GithubLoggedInHandle(res http.ResponseWriter, req *http.Request) {
+func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	provider := vars["provider"]
 	user, err := gothic.CompleteUserAuth(res, req)
 	if err != nil {
 		fmt.Fprintln(res, err)
@@ -146,7 +77,12 @@ func GithubLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 	defer cancel()
 	_, err = db.GetUserByEmail(ctx, user.Email)
 	if err != nil {
-		var u = models.User{Email: user.Email, Password: "nullByGithub", RoleId: 1}
+		var u models.User
+		if provider == "google" {
+			u = models.User{Email: user.Email, Password: "nullByGoogle", RoleId: 1}
+		} else {
+			u = models.User{Email: user.Email, Password: "nullByGithub", RoleId: 1}
+		}
 		err = db.CreateUser(ctx, &u)
 		if err != nil {
 			log.Println(err.Error())
@@ -156,7 +92,6 @@ func GithubLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 	}
 	userInDB, _ := db.GetUserByEmail(context.Background(), user.Email)
 	tokenStr, err := middleware.Generate(userInDB.ID, userInDB.Email, userInDB.RoleId)
-	log.Println(userInDB)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(res, "Error during creation of token", http.StatusInternalServerError)

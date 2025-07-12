@@ -55,6 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 showError("Please try other passwords");
                 return
             }
+            if (password=="nullByGithub"){
+                showError("Please try other passwords");
+                return
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/login`, {

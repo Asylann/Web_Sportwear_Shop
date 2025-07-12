@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/github"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
+	"github.com/markbates/goth/providers/google"
 	"os"
 )
 
@@ -18,15 +17,8 @@ type ProviderIndex struct {
 func InitGithubConfig() {
 	goth.UseProviders(
 		github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_CLIENT_SECRET"), "http://localhost:8080/auth/github/callback", "read:user", "user:email"),
+		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_CLIENT_SECRET"), "http://localhost:8080/auth/google/callback", "email", "profile"),
 	)
-}
-
-var GoogleOAuthConfig = &oauth2.Config{
-	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-	RedirectURL:  "http://localhost:8080/auth/google/callback",
-	Scopes:       []string{"email", "profile"},
-	Endpoint:     google.Endpoint,
 }
 
 type Config struct {
