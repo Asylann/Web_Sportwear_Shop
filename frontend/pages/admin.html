@@ -41,36 +41,12 @@
         if (!utils.checkAuth()) return;
         if (!utils.checkRole(3)) return; // Only admins (role 3)
 
-        loadCategories();
         loadProducts();
         loadUsers();
 
         // Set up form handler
         document.getElementById('createProductForm').addEventListener('submit', handleCreateProduct);
     });
-
-    function loadCategories() {
-        const token = localStorage.getItem('token');
-        fetch('http://localhost:8080/categories', {
-            credentials : "include"
-        })
-            .then(res => res.json())
-            .then(data => {
-                const select = document.getElementById('category');
-                if (data.data) {
-                    data.data.forEach(cat => {
-                        const option = document.createElement('option');
-                        option.value = cat.id;
-                        option.textContent = cat.name;
-                        select.appendChild(option);
-                    });
-                }
-            })
-            .catch(err => {
-                console.error('Error loading categories:', err);
-                utils.showAlert('Error loading categories', 'error');
-            });
-    }
 
     function loadUsers() {
         const token = localStorage.getItem('token');
@@ -218,11 +194,6 @@
             case "3": return 'badge-admin';
             default: return '';
         }
-    }
-
-    function logout() {
-        localStorage.clear();
-        window.location.href = '../index.html';
     }
 </script>
 </body>

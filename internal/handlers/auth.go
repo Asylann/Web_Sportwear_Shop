@@ -68,20 +68,45 @@ func ProviderLoginHandle(res http.ResponseWriter, req *http.Request) {
 func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	provider := vars["provider"]
+
 	user, err := gothic.CompleteUserAuth(res, req)
 	if err != nil {
 		fmt.Fprintln(res, err)
 		return
 	}
+	userEmail := user.Email
+
+	if provider == "google" {
+		verified, ok := user.RawData["email_verified"].(bool)
+		if !ok {
+			log.Println("Error during converting email_verified")
+			http.Error(res, "Error during converting email", http.StatusInternalServerError)
+			return
+		}
+
+		if verified != true {
+			log.Println("Not verified email")
+			http.Error(res, "Not verified email", http.StatusBadRequest)
+			return
+		}
+
+		userEmail, ok = user.RawData["email"].(string)
+		if !ok {
+			log.Println("Error during converting email")
+			http.Error(res, "Error during converting email", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
 	defer cancel()
-	_, err = db.GetUserByEmail(ctx, user.Email)
+	_, err = db.GetUserByEmail(ctx, userEmail)
 	if err != nil {
 		var u models.User
 		if provider == "google" {
-			u = models.User{Email: user.Email, Password: "nullByGoogle", RoleId: 1}
+			u = models.User{Email: userEmail, Password: "nullByGoogle", RoleId: 1}
 		} else {
-			u = models.User{Email: user.Email, Password: "nullByGithub", RoleId: 1}
+			u = models.User{Email: userEmail, Password: "nullByGithub", RoleId: 1}
 		}
 		err = db.CreateUser(ctx, &u)
 		if err != nil {
@@ -90,7 +115,8 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 		}
 		log.Printf("User was created %v \n", u)
 	}
-	userInDB, _ := db.GetUserByEmail(context.Background(), user.Email)
+
+	userInDB, _ := db.GetUserByEmail(context.Background(), userEmail)
 	tokenStr, err := middleware.Generate(userInDB.ID, userInDB.Email, userInDB.RoleId)
 	if err != nil {
 		log.Println(err.Error())

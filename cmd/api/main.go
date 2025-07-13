@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 	db.InitDB(cfg)
-	config.InitGithubConfig()
+	config.InitOAuthConfig()
 	defer db.CloseDB()
 
 	authMw := middleware.JWTAuth(cfg.JWTSecret)

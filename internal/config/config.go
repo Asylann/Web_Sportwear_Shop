@@ -5,19 +5,22 @@ import (
 	"fmt"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/github"
-	"github.com/markbates/goth/providers/google"
+	oidc "github.com/markbates/goth/providers/openidConnect"
+	"log"
 	"os"
 )
 
-type ProviderIndex struct {
-	Providers    []string
-	ProvidersMap map[string]string
-}
-
-func InitGithubConfig() {
+func InitOAuthConfig() {
+	discoveryURL := "https://accounts.google.com/.well-known/openid-configuration"
+	openIdOfGoogle, err := oidc.NewNamed("google", os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_CLIENT_SECRET"), "http://localhost:8080/auth/google/callback", discoveryURL,
+		"email", "profile", "openid")
+	if err != nil {
+		log.Fatalf("failed to init OIDC provider: %v", err)
+	}
+	openIdOfGoogle.SetName("google")
 	goth.UseProviders(
 		github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_CLIENT_SECRET"), "http://localhost:8080/auth/github/callback", "read:user", "user:email"),
-		google.New(os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_CLIENT_SECRET"), "http://localhost:8080/auth/google/callback", "email", "profile"),
+		openIdOfGoogle,
 	)
 }
 
