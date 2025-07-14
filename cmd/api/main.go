@@ -23,10 +23,10 @@ func main() {
 		return
 	}
 	db.InitDB(cfg)
-	config.InitOAuthConfig()
+	config.InitOAuthProviders()
 	defer db.CloseDB()
 
-	authMw := middleware.JWTAuth(cfg.JWTSecret)
+	authMw := middleware.JWTAuth(cfg.JWT_Secret)
 	RequiredCustomer := middleware.RequireRole(1, 2, 3)
 	RequiredSeller := middleware.RequireRole(2, 3)
 	RequiredAdmin := middleware.RequireRole(3)

@@ -89,7 +89,7 @@ func Generate(sub int, email string, role_id int) (string, error) {
 		return "", err
 	}
 
-	signed, err := token.SignedString([]byte(cfg.JWTSecret))
+	signed, err := token.SignedString([]byte(cfg.JWT_Secret))
 	if err != nil {
 		log.Println(err.Error())
 		return "", err
