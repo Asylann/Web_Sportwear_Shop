@@ -1,14 +1,32 @@
 // dashboard.js
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    const token = getCookie("auth_token")
+    if (!token) {
+        showError("No token received from server");
+        return;
+    }
+
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const CookieroleId = parseInt(payload.role_id, 10);
+    const CookieuserId = parseInt(payload.sub, 10);
+    const Cookieemail = payload.email
+
+    localStorage.setItem("roleId", CookieroleId);
+    localStorage.setItem("email", Cookieemail);
+    localStorage.setItem("userId", CookieuserId);
+
     // 1) Must be logged in
-    const token = localStorage.getItem("token");
     const roleId = parseInt(localStorage.getItem("roleId"), 10);
     const email = localStorage.getItem("email")
     if (!token) {
         alert("Please log in first.");
         return window.location.href = "/index.html";
     }
+
+    localStorage.setItem("token", token)
 
     // 2) Display user role information
     displayUserInfo(roleId,email);
@@ -40,6 +58,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+    }
+    return null;
+}
 
 function displayUserInfo(roleId,email,userId) {
     const roleName = getRoleName(roleId);

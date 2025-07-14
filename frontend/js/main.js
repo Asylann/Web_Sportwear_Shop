@@ -21,8 +21,16 @@ window.addEventListener("DOMContentLoaded", () => {
 function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
-    localStorage.removeItem("email")
-    localStorage.removeItem("userId")
+    localStorage.removeItem("email");
+    localStorage.removeItem("userId");
+    fetch('http://localhost:8080/logout', {
+        credentials: "include"
+    })
+        .then(res => res.json())
+        .catch(err => {
+            console.error('Error logging out', err);
+            utils.showAlert('Error logging out', 'error');
+        });
     window.location.href = "/index.html";
 }
 

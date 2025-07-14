@@ -1,10 +1,13 @@
 package middleware
 
 import (
+	"WebSportwareShop/internal/config"
+	"WebSportwareShop/internal/httpresponse"
 	"context"
 	"github.com/golang-jwt/jwt/v4"
+	"log"
 	"net/http"
-	"strings"
+	"time"
 )
 
 type ctxKey string
@@ -17,18 +20,14 @@ const (
 func JWTAuth(secret string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			auth := r.Header.Get("Authorization")
-			if auth == "" {
-				http.Error(w, "missing Authorization header", http.StatusUnauthorized)
+			cookie, err := r.Cookie("auth_token")
+			if err != nil {
+				log.Println("Failed on loading cookie or UnAuthorized")
+				httpresponse.WriteJSON(w, http.StatusBadRequest, "", "UnAuthorized")
 				return
 			}
 
-			parts := strings.SplitN(auth, " ", 2)
-			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-				http.Error(w, "invalid Authorization header format", http.StatusUnauthorized)
-				return
-			}
-			tokenStr := parts[1]
+			tokenStr := cookie.Value
 
 			token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -71,4 +70,30 @@ func UserIDFromContext(ctx context.Context) (int, bool) {
 func RoleIDFromContext(ctx context.Context) (int, bool) {
 	id, ok := ctx.Value(ctxKeyRoleID).(int)
 	return id, ok
+}
+
+func Generate(sub int, email string, role_id int) (string, error) {
+
+	claims := jwt.MapClaims{
+		"sub":     sub,
+		"email":   email,
+		"role_id": role_id,
+		"exp":     time.Now().Add(2 * time.Hour).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	signed, err := token.SignedString([]byte(cfg.JWT_Secret))
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	return signed, nil
 }

@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
 </head>
 <body>
 <div class="container">
@@ -33,7 +34,18 @@
             <button type="submit" class="button">Login</button>
         </form>
 
-        <div class="auth-link">
+        <div class="social-login-container">
+            <button class="social-login-btn" onclick="loginWithGoogle()">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google Logo">
+                <i>Log in with Google</i>
+            </button>
+            <button class="social-login-btn" onclick="loginWithGithub()">
+                <img src="assets/images/github.jpg" alt="Github Logo">
+                <i>Log in with Github</i>
+            </button>
+        </div>
+
+        <div class="auth-link" >
             Don't have an account? <a href="pages/signup.html">Sign up here</a>
         </div>
     </div>
@@ -46,5 +58,7 @@
 <script src="js/api.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
 </body>
 </html>

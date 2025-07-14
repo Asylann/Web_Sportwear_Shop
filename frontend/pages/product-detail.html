@@ -11,11 +11,10 @@
 </head>
 <body>
 <header class="dashboard-header">
-  <h1>🏀 SportwareShop - Product Details</h1>
+  <h1>🏀 SportwearShop - Product Details</h1>
   <div>
     <a href="products.html" class="button" style="margin-right: 10px;">Back to Products</a>
     <a href="dashboard.html" class="button" style="margin-right: 10px;">Dashboard</a>
-    <button onclick="logout()" class="button">Logout</button>
   </div>
 </header>
 
@@ -98,9 +97,7 @@
     const token = localStorage.getItem('token');
 
     fetch(`http://localhost:8080/products/${productId}`, {
-      headers: {
-        'Authorization': 'Bearer ' + token
-      }
+      credentials: "include"
     })
             .then(res => {
               if (!res.ok) {
@@ -122,13 +119,10 @@
   }
 
   async function CategoryInfo(CategoryId) {
-    const token = localStorage.getItem('token');
 
     try {
       const res = await fetch(`http://localhost:8080/categories/${CategoryId}`, {
-        headers: {
-          'Authorization': 'Bearer ' + token
-        }
+        credentials : "include"
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -141,13 +135,10 @@
   }
 
   async function SellerInfo(SellerId) {
-    const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch(`http://localhost:8080/userEmail/${SellerId}`, {
-        headers: {
-          'Authorization': 'Bearer ' + token
-        }
+      const res = await fetch(`http://localhost:8080/users/email/${SellerId}`, {
+        credentials : "include"
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

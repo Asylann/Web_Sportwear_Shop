@@ -7,12 +7,16 @@
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/seller.css" />
     <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 <body>
-<header>
-    <h1>Seller Dashboard</h1>
-    <button onclick="logout()">Logout</button>
+<header class="dashboard-header">
+    <h1>🏀 SportwearShop Seller Panel</h1>
+    <div>
+        <a href="dashboard.html" class="button" style="margin-right: 10px;">Dashboard</a>
+    </div>
 </header>
+
 <main>
     <section class="seller-actions">
         <h2>Manage Your Products</h2>
@@ -28,6 +32,13 @@
             </select>
             <button type="submit">Add Product</button>
         </form>
+
+        <form id="add-category-form">
+            <input type="text" id="category-name" placeholder="Category Name" required />
+            <textarea id="category-description" placeholder="Description"></textarea>
+            <button type="submit">Add Category</button>
+        </form>
+
         <h2>Your Products</h2>
         <div id="seller-product-list" class="product-grid"></div>
     </section>
