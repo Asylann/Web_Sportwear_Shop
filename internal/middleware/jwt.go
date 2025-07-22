@@ -4,6 +4,7 @@ import (
 	"WebSportwareShop/internal/config"
 	"WebSportwareShop/internal/httpresponse"
 	"context"
+	"errors"
 	"github.com/golang-jwt/jwt/v4"
 	"log"
 	"net/http"
@@ -96,4 +97,37 @@ func Generate(sub int, email string, role_id int) (string, error) {
 	}
 
 	return signed, nil
+}
+
+func GetClaimFromToken(auth_token, claim string) (interface{}, error) {
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Printf("Error during Loading config: %s", err.Error())
+		return nil, err
+	}
+	token, err := jwt.Parse(auth_token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
+		return []byte(cfg.JWT_Secret), nil
+	})
+
+	if err != nil || !token.Valid {
+		log.Printf("Invalid token or expired", err.Error())
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		log.Println("Can not get claims from token")
+		return nil, errors.New("Can not get claims from token")
+	}
+
+	result, ok := claims[claim]
+	if !ok {
+		log.Println("Not found such claim")
+		return nil, errors.New("Not found such claim")
+	}
+
+	return result, nil
 }

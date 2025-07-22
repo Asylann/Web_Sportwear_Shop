@@ -1,6 +1,7 @@
 package main
 
 import (
+	"WebSportwareShop/internal/cache"
 	"WebSportwareShop/internal/config"
 	"WebSportwareShop/internal/db"
 	"WebSportwareShop/internal/handlers"
@@ -17,38 +18,49 @@ import (
 )
 
 func main() {
+	// Loading config
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
+
+	// Initialization of Db connection
 	db.InitDB(cfg)
-	config.InitOAuthProviders()
 	defer db.CloseDB()
 
+	// Initialization of OAuth and OpenID providers (Github.com and Gooogle.com)
+	config.InitOAuthProviders()
+
+	// Initialization of Redis connection
+	err = cache.InitRedisConnection()
+	if err != nil {
+		log.Fatalf("Error during Init Redis: %v", err.Error())
+		return
+	}
+
+	// Initialization of connection to Cart Microservice
+	handlers.InitCartClientConnection()
+
+	// Creation of all middlewares
 	authMw := middleware.JWTAuth(cfg.JWT_Secret)
 	RequiredCustomer := middleware.RequireRole(1, 2, 3)
 	RequiredSeller := middleware.RequireRole(2, 3)
 	RequiredAdmin := middleware.RequireRole(3)
 
+	// Using gorilla/mux router and putting logging middleware to every request
 	r := mux.NewRouter()
 	r.Use(middleware.Logging)
 
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8081"}, // or []string{"*"} for dev
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
-		AllowCredentials: true,
-	})
-
-	handler := c.Handler(r)
-
+	// Creation of Each endpoints with access control
 	r.HandleFunc("/signup", handlers.CreateUserHandle).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandle).Methods("POST")
 	r.HandleFunc("/auth/{provider}/login", handlers.ProviderLoginHandle).Methods("GET")
 	r.HandleFunc("/auth/{provider}/callback", handlers.ProviderLoggedInHandle).Methods("GET")
 
 	r.Handle("/logout", authMw(http.HandlerFunc(handlers.LogoutHandle))).Methods("POST")
+
+	r.Handle("/carts", authMw(http.HandlerFunc(handlers.CreateCartHandle))).Methods("POST")
 
 	r.Handle("/products", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsHandle)))).Methods("GET")
 	r.Handle("/products/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetProductHandle)))).Methods("GET")
@@ -73,6 +85,18 @@ func main() {
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.DeleteUserHandle)))).Methods("DELETE")
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.UpdateUserHandle)))).Methods("PUT")
 
+	// Managing access options with rs/cors that allowed request only set sources
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+	})
+
+	// Giving our main route to the cors that will give access to only set sources
+	handler := c.Handler(r)
+
+	// Creation of our server with all timeouts and settings
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Port),
 		Handler:      handler,
@@ -81,12 +105,15 @@ func main() {
 		IdleTimeout:  130 * time.Second,
 	}
 
+	// channel for any stops from system user with Ctrl+C for gracefully shutdown process
 	quit, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
+	// second version but 1-st one is much better, i think
 	/*quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGINT)*/
 
+	// running our server on goroutine for waiting our system user stops
 	go func() {
 		log.Printf("Server is running on :%s \n", cfg.Port)
 		if err = srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -94,12 +121,15 @@ func main() {
 		}
 	}()
 
+	// Waiting till system user stops with Ctrl+C and channel get Done()
 	<-quit.Done()
 	log.Println("shutting down...")
 
+	// This time for making all request that were while shutting down moment
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
+	// Forced Shutdown if time has passed
 	if err = srv.Shutdown(ctx); err != nil {
 		log.Println("Server shut down: %v", err.Error())
 	}
