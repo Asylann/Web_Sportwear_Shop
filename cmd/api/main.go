@@ -62,6 +62,10 @@ func main() {
 
 	r.Handle("/carts", authMw(http.HandlerFunc(handlers.CreateCartHandle))).Methods("POST")
 
+	r.Handle("/addToCart/{id}", authMw(http.HandlerFunc(handlers.AddToCartHandle))).Methods("POST")
+	r.Handle("/myCart", authMw(http.HandlerFunc(handlers.GetItemsOfCartById))).Methods("GET")
+	r.Handle("/myCart/{id}", authMw(http.HandlerFunc(handlers.DeleteItemFromCart))).Methods("DELETE")
+
 	r.Handle("/products", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsHandle)))).Methods("GET")
 	r.Handle("/products/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetProductHandle)))).Methods("GET")
 	r.Handle("/productsByCategory/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsByCategory)))).Methods("GET")
