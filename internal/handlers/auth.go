@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	pb "github.com/Asylann/gRPC_Demo/proto"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth/gothic"
@@ -110,12 +111,29 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 		} else {
 			u = models.User{Email: userEmail, Password: "nullByGithub", RoleId: 1}
 		}
-		err = db.CreateUser(ctx, &u)
+		id, err := db.CreateUser(ctx, &u)
 		if err != nil {
 			log.Println(err.Error())
 			httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Error during creation of user")
 			return
 		}
+
+		_, err = c.CreateCart(ctx, &pb.CreateCartRequest{UserId: int32(id)})
+		if err != nil {
+			log.Println(err.Error())
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "smt went wrong")
+			return
+		}
+		log.Printf("%v`s cart was created!!!")
+
+		err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
+		if err != nil {
+			log.Println(err.Error())
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "smt went wrong")
+			return
+		}
+		log.Println("Version of ListOfUsers was changed to +1")
+
 		log.Printf("User was created = %v", u)
 	}
 

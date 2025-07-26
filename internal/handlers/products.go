@@ -7,6 +7,7 @@ import (
 	"WebSportwareShop/internal/models"
 	"context"
 	"encoding/json"
+	pb "github.com/Asylann/gRPC_Demo/proto"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"log"
@@ -97,6 +98,25 @@ func DeleteProductHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
+	res1, err := c.ChangeEtagVersionOfCartsByProductId(ctx, &pb.ChangeEtagVersionOfCartsByProductIdRequest{ProductId: int64(id)})
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, nil, err.Error())
+		return
+	}
+	if res1.IsChanged {
+		log.Printf("Etag versions of carts that contained product by id = %v were changed", id)
+	}
+
+	res2, err := c.DeleteProductOfCarts(ctx, &pb.DeleteProductOfCartsRequest{ProductId: int64(id)})
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, nil, err.Error())
+		return
+	}
+
+	log.Printf("Product by id = %v was deleted from all carts", res2.ProductId)
 
 	cache.Rdc.Del(ctx, "products")
 	log.Println("Cached products were deleted!")

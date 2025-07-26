@@ -28,6 +28,9 @@ var (
 	stmtGetUser        *sql.Stmt
 	stmtGetUserByEmail *sql.Stmt
 	stmtGetUserEmail   *sql.Stmt
+
+	stmtGetEtagVersionByName    *sql.Stmt
+	stmtChangeEtagVersionByName *sql.Stmt
 )
 
 func initStmt(db *sql.DB) {
@@ -110,7 +113,7 @@ func initStmt(db *sql.DB) {
 
 	stmtCreateUser, err = db.PrepareContext(context.Background(),
 		`INSERT INTO users (email, password, role_id)
-	VALUES($1,$2,$3)`)
+	VALUES($1,$2,$3) RETURNING id`)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
@@ -147,6 +150,20 @@ func initStmt(db *sql.DB) {
 	}
 	stmtGetUserEmail, err = db.PrepareContext(context.Background(),
 		`SELECT email FROM users WHERE ID=$1`)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+
+	stmtGetEtagVersionByName, err = db.PrepareContext(context.Background(),
+		`SELECT version FROM etag_versions WHERE name=$1`)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+
+	stmtChangeEtagVersionByName, err = db.PrepareContext(context.Background(),
+		`UPDATE etag_versions SET version=$2 WHERE name=$1`)
 	if err != nil {
 		log.Fatal(err.Error())
 		return

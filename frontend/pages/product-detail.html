@@ -13,6 +13,7 @@
 <header class="dashboard-header">
   <h1>🏀 SportwearShop - Product Details</h1>
   <div>
+    <a href="cart.html" class="button" style="margin-right: 10px;">🛒 My Cart</a>
     <a href="products.html" class="button" style="margin-right: 10px;">Back to Products</a>
     <a href="dashboard.html" class="button" style="margin-right: 10px;">Dashboard</a>
   </div>
@@ -78,6 +79,8 @@
 <script src="../js/api.js"></script>
 <script src="../js/utils.js"></script>
 <script>
+  let currentProduct = null;
+
   document.addEventListener("DOMContentLoaded", () => {
     if (!utils.checkAuth()) return;
     if (!utils.checkRole(1, 2, 3)) return;
@@ -107,6 +110,7 @@
             })
             .then(data => {
               if (data.data) {
+                currentProduct = data.data;
                 displayProductDetail(data.data);
               } else {
                 showError();
@@ -119,7 +123,6 @@
   }
 
   async function CategoryInfo(CategoryId) {
-
     try {
       const res = await fetch(`http://localhost:8080/categories/${CategoryId}`, {
         credentials : "include"
@@ -135,7 +138,6 @@
   }
 
   async function SellerInfo(SellerId) {
-
     try {
       const res = await fetch(`http://localhost:8080/users/email/${SellerId}`, {
         credentials : "include"
@@ -145,7 +147,7 @@
       const data = await res.json();
       return data.data;
     } catch (err) {
-      console.error('Error fetching category:', err);
+      console.error('Error fetching seller:', err);
       showError();
     }
   }
@@ -166,6 +168,7 @@
     // Wait for category info to load
     const categoryInfo = await CategoryInfo(product.category_id);
     const sellerEmail = await SellerInfo(product.seller_id)
+
     // Set product information
     document.getElementById('product-name').textContent = product.name;
     document.getElementById('product-price').textContent = `${product.price} ₸`;
@@ -179,8 +182,9 @@
 
     document.title = `${product.name} | SportwearShop`;
 
+    // Set up event listeners for buttons
     document.getElementById('add-to-cart-btn').addEventListener('click', () => {
-      utils.showAlert('Added to cart!', 'success');
+      addToCart(product.id);
     });
 
     document.getElementById('buy-now-btn').addEventListener('click', () => {
@@ -188,6 +192,54 @@
     });
   }
 
+  function addToCart(productId) {
+    // Disable button to prevent double-clicking
+    const addBtn = document.getElementById('add-to-cart-btn');
+    const originalText = addBtn.textContent;
+    addBtn.disabled = true;
+    addBtn.textContent = 'Adding...';
+
+    fetch(`http://localhost:8080/addToCart/${productId}`, {
+      method: 'POST',
+      credentials: "include"
+    })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+              }
+              return res.json();
+            })
+            .then(data => {
+              utils.showAlert('Added to cart successfully!', 'success');
+
+              // Optionally show a "View Cart" button or redirect option
+              setTimeout(() => {
+                const viewCart = confirm('Item added to cart! Would you like to view your cart?');
+                if (viewCart) {
+                  window.location.href = 'cart.html';
+                }
+              }, 500);
+            })
+            .catch(err => {
+              console.error('Error adding to cart:', err);
+              if (err.message.includes('401')) {
+                utils.showAlert('Please log in to add items to cart', 'error');
+                utils.redirectToLogin();
+              } else {
+                utils.showAlert('Error adding to cart. Please try again.', 'error');
+              }
+            })
+            .finally(() => {
+              // Re-enable button
+              addBtn.disabled = false;
+              addBtn.textContent = originalText;
+            });
+  }
+
+  function showError() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-message').style.display = 'block';
+  }
 </script>
 </body>
 </html>

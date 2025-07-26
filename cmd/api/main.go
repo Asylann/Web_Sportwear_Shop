@@ -63,8 +63,8 @@ func main() {
 	r.Handle("/carts", authMw(http.HandlerFunc(handlers.CreateCartHandle))).Methods("POST")
 
 	r.Handle("/addToCart/{id}", authMw(http.HandlerFunc(handlers.AddToCartHandle))).Methods("POST")
-	r.Handle("/myCart", authMw(http.HandlerFunc(handlers.GetItemsOfCartById))).Methods("GET")
-	r.Handle("/myCart/{id}", authMw(http.HandlerFunc(handlers.DeleteItemFromCart))).Methods("DELETE")
+	r.Handle("/myCart", authMw(http.HandlerFunc(handlers.GetItemsOfCartByIdHandle))).Methods("GET")
+	r.Handle("/myCart/{id}", authMw(http.HandlerFunc(handlers.DeleteItemFromCartHandle))).Methods("DELETE")
 
 	r.Handle("/products", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsHandle)))).Methods("GET")
 	r.Handle("/products/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetProductHandle)))).Methods("GET")
@@ -93,7 +93,7 @@ func main() {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8081"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
+		AllowedHeaders:   []string{"*", "Etag"},
 		AllowCredentials: true,
 	})
 
