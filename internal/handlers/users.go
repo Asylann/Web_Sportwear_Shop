@@ -36,6 +36,15 @@ func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	hashedPassword, err := HashingToBytes(u.Password)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "Can not generate hash tp such password")
+		return
+	}
+
+	u.Password = string(hashedPassword)
+
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 	defer cancel()
 	id, err := db.CreateUser(ctx, &u)
@@ -51,7 +60,7 @@ func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "Can not create cart")
 		return
 	}
-	log.Printf("%v`s cart was created!!!")
+	log.Printf("%v`s cart was created!!!", u.Email)
 
 	err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
 	if err != nil {
