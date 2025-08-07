@@ -9,15 +9,19 @@ import (
 )
 
 func RunMigrations(db *sql.DB) {
-	driver, _ := postgres.WithInstance(db, &postgres.Config{})
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		log.Fatal("Error during creation postgres driver:", err)
+	}
+
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://migrations",
 		"postgres", driver,
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "there")
 	}
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal(err)
+		log.Fatal(err, " here")
 	}
 }

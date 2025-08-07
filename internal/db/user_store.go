@@ -14,9 +14,11 @@ func GetUserByEmail(ctx context.Context, email string) (models.User, error) {
 	return u, err
 }
 
-func CreateUser(ctx context.Context, u *models.User) error {
-	_, err := stmtCreateUser.ExecContext(ctx, u.Email, u.Password, u.RoleId)
-	return err
+func CreateUser(ctx context.Context, u *models.User) (int, error) {
+	var id int
+	err := stmtCreateUser.QueryRowContext(ctx, u.Email, u.Password, u.RoleId).Scan(&id)
+	u.ID = id
+	return id, err
 }
 
 func DeleteUser(ctx context.Context, id int) error {
@@ -62,4 +64,21 @@ func GetUserEmail(ctx context.Context, id int) (string, error) {
 		return "", err
 	}
 	return u.Email, err
+}
+
+func GetEtagVersionByName(ctx context.Context, name string) (int, error) {
+	var version int
+	err := stmtGetEtagVersionByName.QueryRowContext(ctx, name).Scan(&version)
+	return version, err
+}
+
+func ChangeEtagVersionByName(ctx context.Context, name string) error {
+	var version int
+	err := stmtGetEtagVersionByName.QueryRowContext(ctx, name).Scan(&version)
+	if err != nil {
+		return err
+	}
+	version++
+	_, err = stmtChangeEtagVersionByName.ExecContext(ctx, name, version)
+	return err
 }

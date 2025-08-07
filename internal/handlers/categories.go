@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"WebSportwareShop/internal/cache"
 	"WebSportwareShop/internal/db"
 	"WebSportwareShop/internal/httpresponse"
 	"WebSportwareShop/internal/models"
@@ -35,6 +36,10 @@ func CreateCategoryHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
+	cache.Rdc.Del(ctx, "categories")
+	log.Println("All cached categories were deleted !!!")
+
 	httpresponse.WriteJSON(w, http.StatusCreated, c, "")
 	log.Printf("Category was created! : %v \n", c)
 }
@@ -76,6 +81,10 @@ func DeleteCategoryHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
+	cache.Rdc.Del(ctx, "categories")
+	log.Println("All cached categories were deleted !!!")
+
 	w.WriteHeader(http.StatusNoContent)
 	log.Printf("Category by id=%v was deleted! \n", id)
 }
@@ -83,12 +92,31 @@ func DeleteCategoryHandle(w http.ResponseWriter, r *http.Request) {
 func ListOfCategoriesHandle(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 	defer cancel()
+
+	cacheKey := "categories"
+	if jsonBytes, err := cache.Rdc.Get(ctx, cacheKey).Bytes(); err == nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(jsonBytes)
+		log.Println("All categories were received by Caching!!!")
+		return
+	}
+
 	categories, err := db.ListOfCategories(ctx)
 	if err != nil {
 		log.Println(err.Error())
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
+	payload, err := httpresponse.MarshalResponse(categories, "")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "Smt went wrong")
+		return
+	}
+
+	cache.Rdc.Set(ctx, cacheKey, payload, 10*time.Minute)
+
 	httpresponse.WriteJSON(w, http.StatusOK, categories, "")
 	log.Printf("All Categories list were get!!!")
 }
@@ -116,6 +144,10 @@ func UpdateCategoryHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
+	cache.Rdc.Del(ctx, "categories")
+	log.Println("All cached categories were deleted !!!")
+
 	httpresponse.WriteJSON(w, http.StatusOK, c, "")
 	log.Printf("Category by id = %v was updated : %v", id, c)
 }

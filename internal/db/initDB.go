@@ -21,7 +21,7 @@ func InitDB(cfg config.Config) {
 		log.Fatal(err.Error())
 		return
 	}
-	RunMigrations(db)
+	/*RunMigrations(db)*/
 	initStmt(db)
 	db.SetMaxOpenConns(20)
 	db.SetMaxIdleConns(20)

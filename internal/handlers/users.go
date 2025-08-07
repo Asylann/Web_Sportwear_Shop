@@ -5,13 +5,22 @@ import (
 	"WebSportwareShop/internal/httpresponse"
 	"WebSportwareShop/internal/models"
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
+	pb "github.com/Asylann/gRPC_Demo/proto"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
+
+func mdHashing(payload []byte) string {
+	hasher := md5.New()
+	sum := hasher.Sum([]byte(payload))
+	return hex.EncodeToString(sum)
+}
 
 func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 	var u models.User
@@ -27,14 +36,40 @@ func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	hashedPassword, err := HashingToBytes(u.Password)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "Can not generate hash tp such password")
+		return
+	}
+
+	u.Password = string(hashedPassword)
+
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 	defer cancel()
-	err = db.CreateUser(ctx, &u)
+	id, err := db.CreateUser(ctx, &u)
 	if err != nil {
 		log.Println(err.Error())
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
+	_, err = c.CreateCart(ctx, &pb.CreateCartRequest{UserId: int32(id)})
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "Can not create cart")
+		return
+	}
+	log.Printf("%v`s cart was created!!!", u.Email)
+
+	err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "smt went wrong")
+		return
+	}
+	log.Println("Version of ListOfUsers was changed to +1")
+
 	httpresponse.WriteJSON(w, http.StatusCreated, u.Email, "")
 	log.Printf("User was created! : %v \n", u)
 }
@@ -76,19 +111,54 @@ func DeleteUserHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
+	err = DeleteCart(id)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "Can not delete the cart of user")
+		return
+	}
+
+	err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "smt went wrong")
+		return
+	}
+	log.Println("Version of ListOfUsers was changed to +1")
 	w.WriteHeader(http.StatusNoContent)
 	log.Printf("User by id=%v was deleted! \n", id)
 }
 
 func ListOfUsersHandle(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 	defer cancel()
+
+	version, err := db.GetEtagVersionByName(ctx, "ListOfUsers")
+	if err != nil {
+		log.Println(err.Error(), "here")
+		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+	versionStr := "v" + strconv.Itoa(version)
+	etag := `"` + mdHashing([]byte(versionStr)) + `"`
+
+	w.Header().Set("ETag", etag)
+	w.Header().Set("Cache-Control", "max-age=30 ,public")
+
+	if match := r.Header.Get("If-None-Match"); match == etag {
+		w.WriteHeader(http.StatusNotModified)
+		log.Println("List of users were received By http caching")
+		return
+	}
+
 	users, err := db.ListOfUsers(ctx)
 	if err != nil {
 		log.Println(err.Error())
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+
 	httpresponse.WriteJSON(w, http.StatusOK, users, "")
 	log.Printf("All Users list were received!!!")
 }
@@ -116,6 +186,14 @@ func UpdateUserHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
+	err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, "", "smt went wrong")
+		return
+	}
+	log.Println("Version of ListOfUsers was changed to +1")
+
 	httpresponse.WriteJSON(w, http.StatusOK, u, "")
 	log.Printf("User by id = %v was updated : %v", id, u)
 }

@@ -9,13 +9,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	pb "github.com/Asylann/gRPC_Demo/proto"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth/gothic"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"time"
 )
+
+func HashingToBytes(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), 12)
+}
+
+func CompareHashedPassword(password string, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
 
 type LoginReq struct {
 	Email    string `json:"email"`
@@ -29,8 +40,10 @@ func LoginHandle(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "Error during decode json req to struct", http.StatusBadRequest)
 		return
 	}
+
 	ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
 	defer cancel()
+
 	userInDB, err := db.GetUserByEmail(ctx, r_user.Email)
 	if err != nil {
 		log.Println("Invalid email or Unauthorized")
@@ -38,7 +51,14 @@ func LoginHandle(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if userInDB.Password != r_user.Password {
+	enteredHashedPassword, err := HashingToBytes(r_user.Password)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusInternalServerError, "", err.Error())
+		return
+	}
+
+	if CompareHashedPassword(string(enteredHashedPassword), userInDB.Password) {
 		log.Println("Invalid password")
 		http.Error(res, "Invalid password", http.StatusUnauthorized)
 		return
@@ -110,12 +130,29 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 		} else {
 			u = models.User{Email: userEmail, Password: "nullByGithub", RoleId: 1}
 		}
-		err = db.CreateUser(ctx, &u)
+		id, err := db.CreateUser(ctx, &u)
 		if err != nil {
 			log.Println(err.Error())
 			httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Error during creation of user")
 			return
 		}
+
+		_, err = c.CreateCart(ctx, &pb.CreateCartRequest{UserId: int32(id)})
+		if err != nil {
+			log.Println(err.Error())
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "smt went wrong")
+			return
+		}
+		log.Printf("%v`s cart was created!!!")
+
+		err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
+		if err != nil {
+			log.Println(err.Error())
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "smt went wrong")
+			return
+		}
+		log.Println("Version of ListOfUsers was changed to +1")
+
 		log.Printf("User was created = %v", u)
 	}
 
