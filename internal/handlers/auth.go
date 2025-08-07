@@ -76,6 +76,8 @@ func LoginHandle(res http.ResponseWriter, req *http.Request) {
 		Value:    signedToken,
 		Path:     "/",
 		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		HttpOnly: true,
 	})
 
 	log.Printf("User by email = %v logged in!", userInDB.Email)
@@ -169,10 +171,12 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 		Value:    signedToken,
 		Path:     "/",
 		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
 	})
 
 	log.Printf("User by email = %v logged in!", userInDB.Email)
-	http.Redirect(res, req, "http://localhost:8081/pages/dashboard.html", http.StatusSeeOther)
+	http.Redirect(res, req, "https://localhost:8081/pages/dashboard.html", http.StatusSeeOther)
 }
 
 func LogoutHandle(res http.ResponseWriter, req *http.Request) {

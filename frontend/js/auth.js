@@ -1,7 +1,7 @@
 // frontend/js/auth.js
 
 // Base URL for your API
-const API_BASE = "http://localhost:8080";
+const API_BASE = "https://localhost:8080";
 
 // Helper: show error message under the form
 function showError(message) {
@@ -44,53 +44,64 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             hideError(); // clear previous errors
 
-            const email = document.getElementById("email").value.trim();
+            const Email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
 
-            if (!email || !password) {
+            if (!Email || !password) {
                 showError("Please fill in all fields");
                 return;
             }
-            if (password=="nullByGoogle"){
+            if (password === "nullByGoogle" || password === "nullByGithub") {
                 showError("Please try other passwords");
-                return
-            }
-            if (password=="nullByGithub"){
-                showError("Please try other passwords");
-                return
+                return;
             }
 
             try {
+                // 1) POST to /login; server will set HttpsOnly, Secure cookie
                 const res = await fetch(`${API_BASE}/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password }),
-                    credentials: "include"
+                    credentials: "include",
+                    body: JSON.stringify({Email,password})
                 });
-
-
-                // successful login: store token
-                const token = getCookie("auth_token");
-                if (!token) {
-                    showError("UnAuthorized, please sing up firstly!");
+                if (!res.ok) {
+                    const err = await res.json();
+                    showError(err.error || "Login failed");
                     return;
                 }
-                // Decode JWT to get role
-                try {
-                    const payload = JSON.parse(atob(token.split(".")[1]));
-                    const roleId = parseInt(payload.role_id, 10);
-                    const userId = parseInt(payload.sub, 10);
 
-                    localStorage.setItem("token", token);
-                    localStorage.setItem("roleId", roleId);
-                    localStorage.setItem("email", email);
-                    localStorage.setItem("userId", userId);
-
-                    redirectToDashboard();
-                } catch (jwtError) {
-                    console.error("JWT decode error:", jwtError);
-                    showError("Invalid token received");
+                // 2) Immediately GET /me with the cookie, to retrieve user info
+                const meRes = await fetch(`${API_BASE}/me`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+                if (!meRes.ok) {
+                    showError("Failed to fetch user info");
+                    return;
                 }
+
+
+                const raw = await meRes.json();
+                console.log("Raw `/me` response:", raw);
+
+                if (raw.err) {
+                    console.error("Backend /me error:", raw.err);
+                    alert("Please log in first.");
+                    clearSession();
+                    return window.location.href = "/index.html";
+                }
+
+                const { id, email, roleId } = raw.data;
+                console.log({ id, email, roleId });
+
+                // 3) Store what you need in localStorage
+                localStorage.setItem("userId", id);
+                localStorage.setItem("email", email);
+                localStorage.setItem("roleId", roleId);
+
+                // 4) Redirect on success
+                redirectToDashboard();
+
             } catch (err) {
                 console.error("Login error:", err);
                 showError("Network error. Please try again.");
@@ -140,10 +151,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function loginWithGoogle() {
 
-    window.location.href = "http://localhost:8080/auth/google/login";
+    window.location.href = "https://localhost:8080/auth/google/login";
 }
 
 function loginWithGithub() {
 
-    window.location.href = "http://localhost:8080/auth/github/login";
+    window.location.href = "https://localhost:8080/auth/github/login";
 }

@@ -13,7 +13,7 @@ import (
 func InitOAuthProviders() {
 	discoveryURL := "https://accounts.google.com/.well-known/openid-configuration"
 	GoogleOpenid, err := openidConnect.NewNamed("google", os.Getenv("GOOGLE_CLIENT_ID"), os.Getenv("GOOGLE_CLIENT_SECRET"),
-		"http://localhost:8080/auth/google/callback", discoveryURL, "email", "profile", "openid")
+		"https://localhost:8080/auth/google/callback", discoveryURL, "email", "profile", "openid")
 	if err != nil {
 		log.Printf("Error during init OIDC of google: %v", err.Error())
 		return
@@ -22,7 +22,7 @@ func InitOAuthProviders() {
 	goth.UseProviders(
 		GoogleOpenid,
 		github.New(os.Getenv("GITHUB_CLIENT_ID"), os.Getenv("GITHUB_CLIENT_SECRET"),
-			"http://localhost:8080/auth/github/callback", "read:user", "user:email"),
+			"https://localhost:8080/auth/github/callback", "read:user", "user:email"),
 	)
 }
 

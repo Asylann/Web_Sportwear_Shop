@@ -49,8 +49,7 @@
     });
 
     function loadUsers() {
-        const token = localStorage.getItem('token');
-        fetch('http://localhost:8080/users', {
+        fetch('https://localhost:8080/users', {
             credentials : "include"
         })
             .then(res => res.json())
@@ -99,8 +98,7 @@
     }
 
     function loadProducts() {
-        const token = localStorage.getItem('token');
-        fetch('http://localhost:8080/products', {
+        fetch('https://localhost:8080/products', {
             credentials : "include"
         })
             .then(res => res.json())
@@ -137,13 +135,12 @@
     function deleteProduct(productId) {
         if (!confirm('Are you sure you want to delete this product?')) return;
 
-        const token = localStorage.getItem('token');
-        fetch(`http://localhost:8080/products/${productId}`, {
+        fetch(`https://localhost:8080/products/${productId}`, {
             method: 'DELETE',
             credentials : "include"
         })
             .then(res => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) throw new Error(`HTTPs ${res.status}`);
                 utils.showAlert('Product deleted successfully!');
                 loadProducts();
             })
@@ -156,13 +153,12 @@
     function deleteUser(userId) {
         if (!confirm('Are you sure you want to delete this user?')) return;
 
-        const token = localStorage.getItem('token');
-        fetch(`http://localhost:8080/users/${userId}`, {
+        fetch(`https://localhost:8080/users/${userId}`, {
             method: 'DELETE',
             credentials : "include"
         })
             .then(res => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) throw new Error(`HTTPs ${res.status}`);
                 utils.showAlert('User deleted successfully!');
                 loadProducts();
             })

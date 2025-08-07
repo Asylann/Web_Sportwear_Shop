@@ -1,171 +1,91 @@
-const API_BASE_URL = "http://localhost:8080";
+// apiClient.js
 
-// Fetch wrapper with JWT Authorization header
-function apiRequest(endpoint, method = "GET", body = null) {
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
+const API_BASE_URL = "https://localhost:8080";
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-        throw new Error("No authentication token found");
-    }
-
+// Generic fetch wrapper that sends the auth cookie automatically
+async function apiRequest(endpoint, method = "GET", body = null) {
     const options = {
         method,
-        headers,
-        credential: "include",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include"    // <-- always send HttpsOnly cookie
     };
 
-    if (body) {
+    if (body !== null) {
         options.body = JSON.stringify(body);
     }
 
-    return fetch(`${API_BASE_URL}${endpoint}`, options)
-        .then((response) => {
-            if (!response.ok) {
-                return response.json().then((data) => {
-                    throw new Error(data.error || "Something went wrong");
-                });
-            }
-            return response.json();
-        })
-        .catch((error) => {
-            console.error("API Error:", error.message);
-            throw error;
-        });
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+    if (!res.ok) {
+        // handle 401 by clearing client state and redirecting
+        if (res.status === 401) {
+            clearSession();
+            window.location.href = "/index.html";
+            throw new Error("Session expired. Please log in again.");
+        }
+        const err = await res.json();
+        throw new Error(err.error || `HTTPs ${res.status}`);
+    }
+    return res.json();
 }
 
-// Product APIs - Fixed endpoints to match backend
-function getProducts() {
-    return apiRequest("/products");
-}
-
-function createProduct(product) {
-    return apiRequest("/products", "POST", product);
-}
-
-function updateProduct(id, product) {
-    return apiRequest(`/products/${id}`, "PUT", product);
-}
-
-function deleteProduct(id) {
-    return apiRequest(`/products/${id}`, "DELETE");
-}
-
-function getProduct(id) {
-    return apiRequest(`/products/${id}`);
-}
-
-// Category APIs
-function getCategories() {
-    return apiRequest("/categories");
-}
-
-function createCategory(category) {
-    return apiRequest("/categories", "POST", category);
-}
-
-function updateCategory(id, category) {
-    return apiRequest(`/categories/${id}`, "PUT", category);
-}
-
-function deleteCategory(id) {
-    return apiRequest(`/categories/${id}`, "DELETE");
-}
-
-function getCategory(id) {
-    return apiRequest(`/categories/${id}`);
-}
-
-// User APIs - Fixed endpoints to match backend
-function loginUser(credentials) {
+// --- Auth / User info ---
+export async function loginUser(credentials) {
+    // POST /login will set the auth_token cookie
     return apiRequest("/login", "POST", credentials);
 }
 
-function signupUser(user) {
+export async function signupUser(user) {
     return apiRequest("/signup", "POST", user);
 }
 
-function getUsers() {
-    return apiRequest("/users");
+export async function getCurrentUser() {
+    // returns { ID, Email, RoleId } from your /me endpoint
+    return apiRequest("/me", "GET");
 }
 
-function getUser(id) {
-    return apiRequest(`/users/${id}`);
+// --- Product APIs ---
+export const getProducts     = () => apiRequest("/products");
+export const createProduct   = (p) => apiRequest("/products", "POST", p);
+export const updateProduct   = (id, p) => apiRequest(`/products/${id}`, "PUT", p);
+export const deleteProduct   = (id) => apiRequest(`/products/${id}`, "DELETE");
+export const getProduct      = (id) => apiRequest(`/products/${id}`);
+
+// --- Category APIs ---
+export const getCategories   = () => apiRequest("/categories");
+export const createCategory  = (c) => apiRequest("/categories", "POST", c);
+export const updateCategory  = (id, c) => apiRequest(`/categories/${id}`, "PUT", c);
+export const deleteCategory  = (id) => apiRequest(`/categories/${id}`, "DELETE");
+export const getCategory     = (id) => apiRequest(`/categories/${id}`);
+
+// --- User management (admin only) ---
+export const getUsers        = () => apiRequest("/users");
+export const getUser         = (id) => apiRequest(`/users/${id}`);
+export const updateUser      = (id, u) => apiRequest(`/users/${id}`, "PUT", u);
+export const deleteUser      = (id) => apiRequest(`/users/${id}`, "DELETE");
+
+// --- Helpers ---
+function clearSession() {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("email");
+    localStorage.removeItem("roleId");
 }
 
-function updateUser(id, user) {
-    return apiRequest(`/users/${id}`, "PUT", user);
-}
-
-function deleteUser(id) {
-    return apiRequest(`/users/${id}`, "DELETE");
-}
-
-// Helper function to make authenticated requests
-function makeAuthenticatedRequest(endpoint, method = "GET", body = null) {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        throw new Error("No authentication token found");
-    }
-
-    const headers = {
-        "Content-Type": "application/json",
-        credential : "include",
-    };
-
-    const options = {
-        method,
-        headers
-    };
-
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
-
-    return fetch(`${API_BASE_URL}${endpoint}`, options)
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    // Token expired or invalid
-                    localStorage.clear();
-                    window.location.href = '/index.html';
-                    throw new Error("Session expired. Please login again.");
-                }
-                return response.json().then(data => {
-                    throw new Error(data.error || `HTTP ${response.status}`);
-                });
-            }
-            return response.json();
-        });
-}
-
-// Expose functions for other scripts
-window.api = {
-    // Generic request function
-    apiRequest,
-    makeAuthenticatedRequest,
-
-    // Product functions
+export default {
+    loginUser,
+    signupUser,
+    getCurrentUser,
     getProducts,
     createProduct,
     updateProduct,
     deleteProduct,
     getProduct,
-
-    // Category functions
     getCategories,
     createCategory,
     updateCategory,
     deleteCategory,
     getCategory,
-
-    // User functions
-    loginUser,
-    signupUser,
     getUsers,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
 };

@@ -171,37 +171,49 @@
 <script src="../js/utils.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        if (!utils.checkAuth()) return;
-        if (!utils.checkRole(1, 2, 3)) return;
-
-        loadCategories();
-        fetchProducts();
-
-        // Category filter event listener
-        document.getElementById("product-category").addEventListener("change", () => {
-            const categoryId = parseInt(document.getElementById("product-category").value, 10);
-            if (!categoryId) {
-                fetchProducts();
-            } else {
-                fetchProductsByCategory(categoryId);
-            }
-        });
-
-        // Clear filters button
-        document.getElementById("clear-filters").addEventListener("click", () => {
-            document.getElementById("product-category").value = "";
-            fetchProducts();
-        });
+        initPage();
     });
+
+    async function initPage() {
+        // now you can await inside here:
+        try {
+            if (!(await utils.checkAuth())) return;
+            /*if (!(await utils.checkRole(1,2,3))) return;*/
+
+            await loadCategories();      // ← await these
+            await fetchProducts();       // ← await these
+            // wire up filters…
+
+            document.getElementById("product-category").addEventListener("change", () => {
+                const categoryId = parseInt(document.getElementById("product-category").value, 10);
+                if (!categoryId) {
+                    fetchProducts();
+                } else {
+                    fetchProductsByCategory(categoryId);
+                }
+            });
+
+            // Clear filters button
+            document.getElementById("clear-filters").addEventListener("click", () => {
+                document.getElementById("product-category").value = "";
+                fetchProducts();
+            });
+        }
+        catch(err) {
+            console.error("Error in initPage:", err);
+            // optionally showAlert…
+        }
+
+    }
 
     function fetchProducts() {
 
-        fetch('http://localhost:8080/products', {
+        fetch('https://localhost:8080/products', {
             credentials: "include"
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
+                    throw new Error(`HTTPs ${res.status}`);
                 }
                 return res.json();
             })
@@ -216,12 +228,12 @@
 
     function fetchProductsByCategory(categoryId) {
 
-        fetch(`http://localhost:8080/productsByCategory/${categoryId}`, {
+        fetch(`https://localhost:8080/productsByCategory/${categoryId}`, {
             credentials: "include"
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
+                    throw new Error(`HTTPs ${res.status}`);
                 }
                 return res.json();
             })
@@ -291,7 +303,7 @@
     }
 
     function loadCategories() {
-        fetch('http://localhost:8080/categories', {
+        fetch('https://localhost:8080/categories', {
             credentials: "include"
         })
             .then(res => res.json())

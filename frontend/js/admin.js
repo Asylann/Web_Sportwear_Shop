@@ -23,10 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializeAdminDashboard() {
     console.log("Initializing admin dashboard...");
 
-    const token = localStorage.getItem("token");
     const roleId = parseInt(localStorage.getItem("roleId"), 10);
 
-    console.log("Token:", token ? "Present" : "Missing");
     console.log("Role ID:", roleId);
 
     if (roleId !== 3) {
@@ -70,10 +68,8 @@ function displayAdminInfo() {
 function testApiConnection() {
     console.log("Testing API connection...");
 
-    const token = localStorage.getItem("token");
-
     // Test with a simple API call
-    fetch("http://localhost:8080/categories", {
+    fetch("https://localhost:8080/categories", {
         credentials : "include",
     })
         .then(response => {
@@ -100,7 +96,6 @@ function handleAdminError(error, operation) {
 
     if (error.message.includes("401") || error.message.includes("Unauthorized")) {
         utils.showAlert("Session expired. Please log in again.", "error");
-        utils.clearToken();
         setTimeout(() => {
             utils.redirectToLogin();
         }, 2000);

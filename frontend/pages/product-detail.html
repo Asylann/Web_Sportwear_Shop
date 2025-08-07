@@ -97,14 +97,13 @@
   });
 
   function loadProductDetail(productId) {
-    const token = localStorage.getItem('token');
 
-    fetch(`http://localhost:8080/products/${productId}`, {
+    fetch(`https://localhost:8080/products/${productId}`, {
       credentials: "include"
     })
             .then(res => {
               if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
+                throw new Error(`HTTPs ${res.status}`);
               }
               return res.json();
             })
@@ -124,11 +123,11 @@
 
   async function CategoryInfo(CategoryId) {
     try {
-      const res = await fetch(`http://localhost:8080/categories/${CategoryId}`, {
+      const res = await fetch(`https://localhost:8080/categories/${CategoryId}`, {
         credentials : "include"
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`HTTPs ${res.status}`);
       const data = await res.json();
       return data.data;
     } catch (err) {
@@ -139,11 +138,11 @@
 
   async function SellerInfo(SellerId) {
     try {
-      const res = await fetch(`http://localhost:8080/users/email/${SellerId}`, {
+      const res = await fetch(`https://localhost:8080/users/email/${SellerId}`, {
         credentials : "include"
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`HTTPs ${res.status}`);
       const data = await res.json();
       return data.data;
     } catch (err) {
@@ -199,13 +198,13 @@
     addBtn.disabled = true;
     addBtn.textContent = 'Adding...';
 
-    fetch(`http://localhost:8080/addToCart/${productId}`, {
+    fetch(`https://localhost:8080/addToCart/${productId}`, {
       method: 'POST',
       credentials: "include"
     })
             .then(res => {
               if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
+                throw new Error(`HTTPs ${res.status}`);
               }
               return res.json();
             })
