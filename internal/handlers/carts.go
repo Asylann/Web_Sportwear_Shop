@@ -6,14 +6,12 @@ import (
 	"WebSportwareShop/internal/middleware"
 	"WebSportwareShop/internal/models"
 	"context"
-
 	pb "github.com/Asylann/gRPC_Demo/proto"
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 	"log"
 	"net/http"
 	"strconv"
-
 	"time"
 )
 
@@ -141,18 +139,11 @@ func AddToCartHandle(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err = c.ChangeEtagVersionByUserId(ctx, &pb.ChangeEtagVersionByUserIdRequest{UserId: userId})
-	if err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "Smt went wrong")
-		return
-	}
-
 	httpresponse.WriteJSON(res, http.StatusOK, "Added to your cart", "")
 	log.Printf("Product by id = %v was added to cart of %v \n", p.ID, userEmail)
 }
 
-func GetItemsOfCartByIdHandle(res http.ResponseWriter, req *http.Request) {
+func GetItemsOfCartById(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie("auth_token")
 	if err != nil {
 		log.Println("Not found cookie")
@@ -186,30 +177,9 @@ func GetItemsOfCartByIdHandle(res http.ResponseWriter, req *http.Request) {
 
 	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
 	defer cancel()
-
-	etagRes, err := c.GetEtagVersionByUserId(ctx, &pb.GetEtagVersionByUserIdRequest{UserId: userId})
-	if err != nil {
-		log.Println(err.Error(), "hrsj")
-		httpresponse.WriteJSON(res, http.StatusNotFound, "", "Can not find version 0f your cart")
-		return
-	}
-
-	etagStr := strconv.Itoa(int(etagRes.GetVersion()))
-
-	etag := `"` + mdHashing([]byte(etagStr)) + `"`
-
-	res.Header().Set("ETag", etag)
-	res.Header().Set("Cache-Control", "max-age=30 public must-revalidate")
-
-	if match := req.Header.Get("If-None-Match"); match == etag {
-		log.Printf("Cart of %v was received By http caching", userEmail)
-		res.WriteHeader(http.StatusNotModified)
-		return
-	}
-
 	r1, err := c.GetCartByUserId(ctx, &pb.GetCartByUserIdRequest{Id: userId})
 	if err != nil {
-		log.Println(err.Error(), "dksf")
+		log.Println(err.Error())
 		httpresponse.WriteJSON(res, http.StatusNotFound, "", "Can not find your cart to add")
 		return
 	}
@@ -218,7 +188,7 @@ func GetItemsOfCartByIdHandle(res http.ResponseWriter, req *http.Request) {
 
 	r2, err := c.GetItemsOfCartById(ctx, &pb.GetItemsOfCartByIdRequest{Id: cartId})
 	if err != nil {
-		log.Println(err.Error(), "here fg")
+		log.Println(err.Error())
 		httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "Smt went wrong")
 		return
 	}
@@ -240,7 +210,7 @@ func GetItemsOfCartByIdHandle(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Products of %v cart were received!!!", userEmail)
 }
 
-func DeleteItemFromCartHandle(res http.ResponseWriter, req *http.Request) {
+func DeleteItemFromCart(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -305,20 +275,6 @@ func DeleteItemFromCartHandle(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err = c.ChangeEtagVersionByUserId(ctx, &pb.ChangeEtagVersionByUserIdRequest{UserId: userId})
-	if err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "Smt went wrong")
-		return
-	}
-
 	httpresponse.WriteJSON(res, http.StatusOK, deletedProduct, "")
 	log.Printf("Product by id = %v was deleted from %v cart", deletedProduct.ID, userEmail)
-}
-
-func DeleteCart(userId int) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	_, err := c.DeleteCart(ctx, &pb.DeleteCartRequest{UserId: int32(userId)})
-	return err
 }
