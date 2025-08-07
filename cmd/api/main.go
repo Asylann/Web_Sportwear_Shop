@@ -66,6 +66,8 @@ func main() {
 	r.Handle("/myCart", authMw(http.HandlerFunc(handlers.GetItemsOfCartByIdHandle))).Methods("GET")
 	r.Handle("/myCart/{id}", authMw(http.HandlerFunc(handlers.DeleteItemFromCartHandle))).Methods("DELETE")
 
+	r.Handle("/me", authMw(http.HandlerFunc(handlers.GetInfoAboutMe))).Methods("GET")
+
 	r.Handle("/products", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsHandle)))).Methods("GET")
 	r.Handle("/products/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetProductHandle)))).Methods("GET")
 	r.Handle("/productsByCategory/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsByCategory)))).Methods("GET")
@@ -91,7 +93,7 @@ func main() {
 
 	// Managing access options with rs/cors that allowed request only set sources
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowedOrigins:   []string{"https://localhost:8081"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*", "Etag"},
 		AllowCredentials: true,
@@ -119,8 +121,8 @@ func main() {
 
 	// running our server on goroutine for waiting our system user stops
 	go func() {
-		log.Printf("Server is running on :%s \n", cfg.Port)
-		if err = srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Printf("HTTPS Server is running on :%s \n", cfg.Port)
+		if err = srv.ListenAndServeTLS("localhost+2.pem", "localhost+2-key.pem"); err != nil && err != http.ErrServerClosed {
 			log.Fatal(err.Error())
 		}
 	}()

@@ -1,88 +1,87 @@
 // dashboard.js
 
+const API_BASE = "https://localhost:8080";
+
 document.addEventListener("DOMContentLoaded", () => {
-
-    const token = getCookie("auth_token")
-    if (!token) {
-        showError("No token received from server");
-        return;
-    }
-
-
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const CookieroleId = parseInt(payload.role_id, 10);
-    const CookieuserId = parseInt(payload.sub, 10);
-    const Cookieemail = payload.email
-
-    localStorage.setItem("roleId", CookieroleId);
-    localStorage.setItem("email", Cookieemail);
-    localStorage.setItem("userId", CookieuserId);
-
-    // 1) Must be logged in
-    const roleId = parseInt(localStorage.getItem("roleId"), 10);
-    const email = localStorage.getItem("email")
-    if (!token) {
-        alert("Please log in first.");
-        return window.location.href = "/index.html";
-    }
-
-    localStorage.setItem("token", token)
-
-    // 2) Display user role information
-    displayUserInfo(roleId,email);
-
-    // 3) Always show products link
-    document.getElementById("nav-products").style.display = "inline-block";
-
-    // 4) Show/hide nav links based on role
-    if (roleId === 2 || roleId === 3) {
-        // sellers and admins can access seller panel
-        document.getElementById("nav-seller").style.display = "inline-block";
-    } else {
-        document.getElementById("nav-seller").style.display = "none";
-    }
-
-    if (roleId === 3) {
-        // only admins can access admin panel
-        document.getElementById("nav-admin").style.display = "inline-block";
-    } else {
-        document.getElementById("nav-admin").style.display = "none";
-    }
-
-    // 5) Logout button
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            localStorage.clear();
-            window.location.href = "/index.html";
-        });
-    }
+    initDashboard();
 });
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) {
-        return parts.pop().split(';').shift();
+async function initDashboard() {
+    try {
+        // 1) Validate session & get user info
+        const meRes = await fetch(`${API_BASE}/me`, {
+            method: "GET",
+            credentials: "include"
+        });
+        if (!meRes.ok) {
+            // not logged in or session expired
+            console.error("Failed to fetch /me:", meRes.status);
+            alert("Please log in first.");
+            clearSession();
+            return window.location.href = "/index.html";
+        }
+
+        const raw = await meRes.json();
+        console.log("Raw `/me` response:", raw);
+
+        if (raw.err) {
+            console.error("Backend /me error:", raw.err);
+            alert("Please log in first.");
+            clearSession();
+            return window.location.href = "/index.html";
+        }
+
+        const { id, email, roleId } = raw.data;
+        console.log({ id, email, roleId });
+
+        // 3) Store what you need in localStorage
+        localStorage.setItem("userId", id);
+        localStorage.setItem("email", email);
+        localStorage.setItem("roleId", roleId);
+
+        // 3) Display user info
+        displayUserInfo(roleId, email);
+
+        // 4) Show universal nav items
+        document.getElementById("nav-products").style.display = "inline-block";
+
+        // 5) Role-based nav
+        document.getElementById("nav-seller").style.display =
+            (roleId === 2 || roleId === 3) ? "inline-block" : "none";
+
+        document.getElementById("nav-admin").style.display =
+            (roleId === 3) ? "inline-block" : "none";
+
+        // 6) Wire up logout
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                clearSession();
+                window.location.href = "/index.html";
+            });
+        }
+
+    } catch (err) {
+        console.error("Network error in initDashboard:", err);
+        alert("Network error. Please try again.");
+        window.location.href = "/index.html";
     }
-    return null;
 }
 
-function displayUserInfo(roleId,email,userId) {
+function displayUserInfo(roleId, email) {
     const roleName = getRoleName(roleId);
-    const userInfoContainer = document.querySelector(".dashboard-card p");
+    const container = document.querySelector(".dashboard-card p");
+    if (!container) return;
 
-    if (userInfoContainer) {
-        userInfoContainer.innerHTML = `
-            <strong>Your Email:</strong> ${email}<br>
-            <strong>Your Role:</strong> ${roleName}<br>
-            <strong>Available Actions:</strong><br>
-            • View Products (all users)<br>
-            ${roleId >= 2 ? '• Manage Products (sellers/admins)<br>' : ''}
-            ${roleId === 3 ? '• User Management (admins only)<br>' : ''}
-            Choose an action from the navigation above.
-        `;
-    }
+    container.innerHTML = `
+    <strong>Your Email:</strong> ${email}<br>
+    <strong>Your Role:</strong> ${roleName}<br>
+    <strong>Available Actions:</strong><br>
+    • View Products (all users)<br>
+    ${roleId >= 2 ? '• Manage Products (sellers/admins)<br>' : ''}
+    ${roleId === 3 ? '• User Management (admins only)<br>' : ''}
+    Choose an action from the navigation above.
+  `;
 }
 
 function getRoleName(roleId) {
@@ -92,4 +91,12 @@ function getRoleName(roleId) {
         case 3: return "Admin";
         default: return "Unknown";
     }
+}
+
+function clearSession() {
+    // clear any client-side stored data
+    localStorage.removeItem("userId");
+    localStorage.removeItem("email");
+    localStorage.removeItem("roleId");
+    // auth_token cookie expires server-side or on next login
 }

@@ -375,12 +375,12 @@
     });
 
     function loadCartItems() {
-        fetch('http://localhost:8080/myCart', {
+        fetch('https://localhost:8080/myCart', {
             credentials: "include"
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
+                    throw new Error(`HTTPs ${res.status}`);
                 }
                 return res.json();
             })
@@ -475,13 +475,13 @@
             return;
         }
 
-        fetch(`http://localhost:8080/myCart/${productId}`, {
+        fetch(`https://localhost:8080/myCart/${productId}`, {
             method: 'DELETE',
             credentials: "include"
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
+                    throw new Error(`HTTPs ${res.status}`);
                 }
                 utils.showAlert('Item removed from cart', 'success');
 

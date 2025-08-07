@@ -28,13 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadCategories() {
-    const token = localStorage.getItem("token");
-    fetch("http://localhost:8080/categories", {
+    fetch("https://localhost:8080/categories", {
         credentials: "include"
     })
         .then(res => {
             if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
+                throw new Error(`HTTPs ${res.status}`);
             }
             return res.json();
         })
@@ -64,14 +63,13 @@ function loadCategories() {
 }
 
 function loadSellerProducts() {
-    const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId")
-    fetch("http://localhost:8080/productsBySeller/"+userId, {
+    fetch("https://localhost:8080/productsBySeller/"+userId, {
         credentials : "include",
     })
         .then(res => {
             if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
+                throw new Error(`HTTPs ${res.status}`);
             }
             return res.json();
         })
@@ -114,7 +112,6 @@ function handleProductCreation(event) {
     event.preventDefault();
     console.log("[seller.js] handleProductCreation fired");
 
-    const token = localStorage.getItem("token");
     const name = document.getElementById("product-name").value.trim();
     const description = document.getElementById("product-description").value.trim();
     const priceInput = document.getElementById("product-price").value;
@@ -156,7 +153,7 @@ function handleProductCreation(event) {
 
     console.log("→ Sending payload:", payload);
 
-    fetch("http://localhost:8080/products", {
+    fetch("https://localhost:8080/products", {
         method: "POST",
         credentials : "include",
         body: JSON.stringify(payload),
@@ -167,7 +164,7 @@ function handleProductCreation(event) {
             console.log("← Response body:", body);
 
             if (!res.ok) {
-                throw new Error(body.error || `HTTP ${res.status}`);
+                throw new Error(body.error || `HTTPs ${res.status}`);
             }
 
             utils.showAlert("Product created successfully!");
@@ -185,7 +182,6 @@ function handleCategoryCreation(event) {
     event.preventDefault();
     console.log("[seller.js] handleCategoryCreation fired");
 
-    const token = localStorage.getItem("token");
     const name = document.getElementById("category-name").value.trim();
     const description = document.getElementById("category-description").value.trim();
     // Validation
@@ -201,7 +197,7 @@ function handleCategoryCreation(event) {
 
     console.log("→ Sending payload:", payload);
 
-    fetch("http://localhost:8080/categories", {
+    fetch("https://localhost:8080/categories", {
         method: "POST",
         credentials : "include",
         body: JSON.stringify(payload),
@@ -212,7 +208,7 @@ function handleCategoryCreation(event) {
             console.log("← Response body:", body);
 
             if (!res.ok) {
-                throw new Error(body.error || `HTTP ${res.status}`);
+                throw new Error(body.error || `HTTPs ${res.status}`);
             }
 
             utils.showAlert("Category created successfully!");
@@ -231,13 +227,12 @@ function deleteProduct(productId) {
         return;
     }
 
-    const token = localStorage.getItem("token");
-    fetch(`http://localhost:8080/products/${productId}`, {
+    fetch(`https://localhost:8080/products/${productId}`, {
         method: "DELETE",
         credentials : "include",
     })
         .then(res => {
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!res.ok) throw new Error(`HTTPs ${res.status}`);
             utils.showAlert('Product deleted successfully!');
             loadSellerProducts();
         })

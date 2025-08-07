@@ -3,6 +3,7 @@ package handlers
 import (
 	"WebSportwareShop/internal/db"
 	"WebSportwareShop/internal/httpresponse"
+	"WebSportwareShop/internal/middleware"
 	"WebSportwareShop/internal/models"
 	"context"
 	"crypto/md5"
@@ -217,4 +218,50 @@ func GetUserEmailHandle(w http.ResponseWriter, r *http.Request) {
 	}
 	httpresponse.WriteJSON(w, http.StatusOK, email, "")
 	log.Printf("User`s email by id = %v was recieved \n", id)
+}
+
+func GetInfoAboutMe(res http.ResponseWriter, req *http.Request) {
+	cookie, err := req.Cookie("auth_token")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "not found Cookie")
+		return
+	}
+
+	token := cookie.Value
+
+	idItf, err := middleware.GetClaimFromToken(token, "sub")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "not found claims")
+		return
+	}
+	role_idItf, err := middleware.GetClaimFromToken(token, "role_id")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "not found claims")
+		return
+	}
+	emailItf, err := middleware.GetClaimFromToken(token, "email")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "not found claims")
+		return
+	}
+
+	idFloat := idItf.(float64)
+	roleIdFloat := role_idItf.(float64)
+	email := emailItf.(string)
+
+	id := int(idFloat)
+	roleId := int(roleIdFloat)
+
+	userInfo := models.UserInfo{
+		ID:     id,
+		Email:  email,
+		RoleId: roleId,
+	}
+
+	log.Printf("Info about user = %v was received!!!", email)
+	httpresponse.WriteJSON(res, http.StatusOK, userInfo, "")
 }
