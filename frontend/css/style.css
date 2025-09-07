@@ -1,118 +1,416 @@
-/* frontend/css/style.css */
+/* frontend/css/style.css - Adidas-inspired design */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --bg: #ffffff;
+    --brand: #000000;
+    --muted: #f3f3f3;
+    --accent: #1a73e8;
+    --text-primary: #000000;
+    --text-secondary: #666666;
+    --border: #e1e1e1;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 body {
-    background-color: #ffffff;
-    color: #333;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-weight: 400;
 }
 
 a {
     text-decoration: none;
     color: inherit;
+    transition: all 0.2s ease;
+}
+
+a:hover {
+    color: var(--accent);
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0 20px;
 }
 
+/* Header */
 .header {
-    background-color: #343a40;
-    color: #fff;
-    padding: 15px 20px;
+    background-color: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.header h1 {
+.header h1, .logo {
     font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
+.header-actions {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Buttons */
 .button {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    border-radius: 4px;
+    background-color: var(--brand);
+    color: var(--bg);
+    border: 2px solid var(--brand);
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.2s ease;
+    display: inline-block;
+    text-align: center;
 }
 
 .button:hover {
-    background-color: #0056b3;
+    background-color: var(--bg);
+    color: var(--brand);
 }
 
+.button-outline {
+    background-color: transparent;
+    color: var(--brand);
+    border: 2px solid var(--brand);
+}
+
+.button-outline:hover {
+    background-color: var(--brand);
+    color: var(--bg);
+}
+
+/* Form elements */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
 }
 
 input[type="text"],
 input[type="email"],
 input[type="password"],
-input[type="number"] {
+input[type="number"],
+textarea,
+select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-top: 5px;
+    padding: 15px;
+    border: 2px solid var(--border);
+    background-color: var(--bg);
+    font-size: 16px;
+    font-family: inherit;
+    border-radius: 0;
+    transition: border-color 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--brand);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 15px;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 h2 {
-    margin-bottom: 20px;
-    font-size: 28px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+/* Tables */
 .table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    background-color: var(--bg);
 }
 
 .table th,
 .table td {
-    border: 1px solid #ccc;
-    padding: 10px;
+    border: 1px solid var(--border);
+    padding: 15px;
     text-align: left;
+    font-size: 14px;
 }
 
 .table th {
-    background-color: #007bff;
-    color: white;
+    background-color: var(--brand);
+    color: var(--bg);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 12px;
 }
 
+/* Messages */
 .error-message {
-    color: red;
-    margin: 10px 0;
+    color: #dc3545;
+    font-size: 14px;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #ffeaea;
+    border-left: 3px solid #dc3545;
 }
 
 .success-message {
-    color: green;
-    margin: 10px 0;
+    color: #28a745;
+    font-size: 14px;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #eafaf1;
+    border-left: 3px solid #28a745;
 }
 
-.card {
-    background-color: white;
-    border-radius: 8px;
+/* Product Cards */
+.product-card {
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    border-color: var(--brand);
+    box-shadow: 0 10px 30px var(--shadow);
+}
+
+.product-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.05);
+}
+
+.product-card .info {
     padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.product-card .info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.product-card .info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.product-card .info .price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--brand);
+    text-transform: uppercase;
+}
+
+/* Auto-scrolling product rows */
+.auto-scroll-container {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    margin: 40px 0;
+}
+
+.auto-scroll-row {
+    display: inline-flex;
+    animation: scroll-left 30s linear infinite;
+    gap: 20px;
+}
+
+.auto-scroll-row .product-card {
+    min-width: 280px;
+    flex-shrink: 0;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.auto-scroll-container:hover .auto-scroll-row {
+    animation-play-state: paused;
+}
+
+/* Section headers for product rows */
+.section-header {
+    text-align: center;
+    margin: 60px 0 40px 0;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.section-header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Hero section */
+.hero {
+    background-color: var(--muted);
+    padding: 80px 0;
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Utility classes */
 .flex {
     display: flex;
     gap: 10px;
 }
 
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
+
+    .auto-scroll-row .product-card {
+        min-width: 250px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .header-actions {
+        gap: 15px;
+    }
+}
