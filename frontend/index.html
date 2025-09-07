@@ -9,57 +9,513 @@
     <link rel="stylesheet" href="css/auth.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Hero section specific styles */
+        .login-hero {
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: #ffffff;
+            padding: 100px 0;
+            text-align: center;
+            margin-bottom: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(255,255,255,0.02) 50px,
+                    rgba(255,255,255,0.02) 100px
+            );
+        }
+
+        .login-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .login-hero h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .login-hero p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .login-hero .cta-button {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #000000;
+            padding: 20px 40px;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .login-hero .cta-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        /* Featured products auto-scroll */
+        .featured-section {
+            padding: 80px 0;
+            background-color: #f8f8f8;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            font-size: 16px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .auto-scroll-container {
+            overflow: hidden;
+            position: relative;
+            margin: 40px 0;
+            mask: linear-gradient(
+                    to right,
+                    transparent 0%,
+                    black 5%,
+                    black 95%,
+                    transparent 100%
+            );
+            -webkit-mask: linear-gradient(
+                    to right,
+                    transparent 0%,
+                    black 5%,
+                    black 95%,
+                    transparent 100%
+            );
+        }
+
+        .auto-scroll-row {
+            display: flex;
+            /* 🎯 SPEED CONTROL: Change the duration here (lower = faster) */
+            animation: scroll-left 20s linear infinite;
+            gap: 30px;
+            will-change: transform;
+        }
+
+        .auto-scroll-row .scroll-product-card {
+            min-width: 320px;
+            flex-shrink: 0;
+        }
+
+        .auto-scroll-container:hover .auto-scroll-row {
+            animation-play-state: paused;
+        }
+
+        /* Auto-scroll product cards */
+        .scroll-product-card {
+            background-color: #ffffff;
+            border: 1px solid #e1e1e1;
+            min-width: 320px;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            border-radius: 2px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .scroll-product-card:hover {
+            border-color: #000000;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        .scroll-product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #000000, #333333);
+            transform: scaleX(0);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: left;
+        }
+
+        .scroll-product-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .scroll-product-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .scroll-product-card:hover img {
+            transform: scale(1.08);
+        }
+
+        .scroll-product-card .placeholder-img {
+            width: 100%;
+            height: 260px;
+            background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .scroll-product-card .placeholder-img::before {
+            content: '📦';
+            font-size: 2rem;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+
+        .scroll-product-card .info {
+            padding: 25px;
+            background: linear-gradient(to bottom, #ffffff, #fafafa);
+        }
+
+        .scroll-product-card .info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            color: #1a1a1a;
+        }
+
+        .scroll-product-card:hover .info h3 {
+            color: #000000;
+            transform: translateY(-2px);
+        }
+
+        .scroll-product-card .info p {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.3s ease;
+        }
+
+        .scroll-product-card:hover .info p {
+            color: #555555;
+        }
+
+        .scroll-product-card .info .price {
+            font-size: 20px;
+            font-weight: 800;
+            color: #000000;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .scroll-product-card .info .price::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #000000;
+            transition: width 0.3s ease;
+        }
+
+        .scroll-product-card:hover .info .price::after {
+            width: 100%;
+        }
+
+        .scroll-product-card .click-hint {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            opacity: 0;
+            transform: translateY(-15px) scale(0.8);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 1px;
+            backdrop-filter: blur(10px);
+        }
+
+        .scroll-product-card:hover .click-hint {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Loading state for products */
+        .loading-products {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Login container overlay */
+        .login-overlay {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 60px 0;
+        }
+
+        @media (max-width: 768px) {
+            .login-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .auto-scroll-row .scroll-product-card {
+                min-width: 280px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <div class="auth-card">
-        <h1>🏀 WebSportwearShop</h1>
-        <p>Login to your account</p>
+<!-- Hero Section -->
+<section class="login-hero">
+    <div class="login-hero-content">
+        <h1>VERTIGO SPORT</h1>
+        <p>Premium Athletic Gear for Champions</p>
+        <p>Discover the latest in sportswear excellence</p>
+    </div>
+</section>
 
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="you@example.com" required />
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required />
-            </div>
-
-            <div id="error-message" class="error-message" style="display: none;"></div>
-
-            <button type="submit" class="button">Login</button>
-        </form>
-
-        <div class="social-login-container">
-            <button class="social-login-btn" onclick="loginWithGoogle()">
-                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google Logo">
-                <i>Log in with Google</i>
-            </button>
-            <button class="social-login-btn" onclick="loginWithGithub()">
-                <img src="assets/images/github.jpg" alt="Github Logo">
-                <i>Log in with Github</i>
-            </button>
+<!-- Featured Products Section -->
+<section class="featured-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Featured Products</h2>
+            <p>Discover our premium collection</p>
         </div>
 
-        <div class="auth-link" >
-            Don't have an account? <a href="pages/signup.html">Sign up here</a>
+        <!-- Auto-scrolling product row -->
+        <div id="products-scroll-container" class="auto-scroll-container">
+            <div id="products-scroll-row" class="auto-scroll-row">
+                <!-- Products will be loaded here by JavaScript -->
+                <div class="loading-products">Loading featured products...</div>
+            </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Login Section -->
+<section class="login-overlay">
+    <div class="container">
+        <div class="auth-card">
+            <h1>Login</h1>
+            <p>Access your account</p>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required />
+                </div>
+
+                <div id="error-message" class="error-message" style="display: none;"></div>
+
+                <button type="submit" class="button">Login</button>
+            </form>
+
+            <div class="social-login-container">
+                <button class="social-login-btn" onclick="loginWithGoogle()">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google Logo">
+                    Log in with Google
+                </button>
+                <button class="social-login-btn" onclick="loginWithGithub()">
+                    <img src="assets/images/github.jpg" alt="Github Logo">
+                    Log in with Github
+                </button>
+            </div>
+
+            <div class="auth-link">
+                Don't have an account? <a href="pages/signup.html">Sign up here</a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <footer class="footer">
-    <p>&copy; 2025 WebSportwearShop. All rights reserved.</p>
+    <p>&copy; 2025 WebSportwareShop. All rights reserved.</p>
 </footer>
 
 <script type="module" src="js/api.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
 
-<!-- Compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+<!-- Products loading script -->
+<script>
+    // Load products for the auto-scroll section
+    document.addEventListener('DOMContentLoaded', function() {
+        loadFeaturedProducts();
+    });
+
+    function loadFeaturedProducts() {
+        fetch('https://localhost:8080/products', {
+            credentials: "include"
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                displayFeaturedProducts(data);
+            })
+            .catch(err => {
+                console.error('Error loading products:', err);
+                // Show demo products as fallback
+                showDemoProducts();
+            });
+    }
+
+    function displayFeaturedProducts(data) {
+        const scrollRow = document.getElementById('products-scroll-row');
+        if (!scrollRow) return;
+
+        if (data.data && data.data.length > 0) {
+            const products = Array.isArray(data.data) ? data.data : Object.values(data.data);
+
+            // Take first 6 products for the scroll
+            const featuredProducts = products.slice(0, 6);
+
+            // Clear loading message
+            scrollRow.innerHTML = '';
+
+            // Create product cards (duplicate for seamless scrolling)
+            const productCards = featuredProducts.concat(featuredProducts).map(product =>
+                createProductCard(product)
+            ).join('');
+
+            scrollRow.innerHTML = productCards;
+        } else {
+            showDemoProducts();
+        }
+    }
+
+    function createProductCard(product) {
+        const imageHTML = product.imageURL ?
+            `<img src="${product.imageURL}" alt="${product.name}" />` :
+            `<div class="placeholder-img">No Image Available</div>`;
+
+        return `
+                <div class="scroll-product-card" onclick="goToProduct(${product.id})">
+                    <div class="click-hint">View Details</div>
+                    ${imageHTML}
+                    <div class="info">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <div class="price">${product.price} ₸</div>
+                    </div>
+                </div>
+            `;
+    }
+
+    function goToProduct(productId) {
+        // Check if user is logged in before navigating
+        const token = localStorage.getItem('authToken') || document.cookie.includes('authToken');
+        if (token) {
+            window.location.href = `pages/product-detail.html?id=${productId}`;
+        } else {
+            // Show login prompt or scroll to login section
+            document.querySelector('.auth-card').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    function showDemoProducts() {
+        const scrollRow = document.getElementById('products-scroll-row');
+        if (!scrollRow) return;
+
+        const demoProducts = [
+            { name: 'Ultra Boost 22', description: 'Revolutionary energy return technology', price: '45,000' },
+            { name: 'Training Jersey', description: 'Moisture-wicking fabric technology', price: '12,000' },
+            { name: 'Pro Basketball', description: 'Official game quality basketball', price: '8,500' },
+            { name: 'Training Gloves', description: 'Enhanced grip and protection', price: '3,200' }
+        ];
+
+        // Duplicate for seamless scroll
+        const allDemoProducts = demoProducts.concat(demoProducts);
+
+        scrollRow.innerHTML = allDemoProducts.map(product => `
+                <div class="scroll-product-card">
+                    <div class="placeholder-img">${product.name}</div>
+                    <div class="info">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <div class="price">₸${product.price}</div>
+                    </div>
+                </div>
+            `).join('');
+    }
+</script>
 </body>
 </html>

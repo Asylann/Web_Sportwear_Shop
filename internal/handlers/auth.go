@@ -230,3 +230,31 @@ func LogoutHandle(res http.ResponseWriter, req *http.Request) {
 	log.Printf("User by email = %v logged out!", userEmail)
 	httpresponse.WriteJSON(res, http.StatusOK, "Logged out!", "")
 }
+
+func GetUserIdFromReq(res http.ResponseWriter, req *http.Request) (int, error) {
+	cookie, err := req.Cookie("auth_token")
+	if err != nil {
+		log.Println("Not found cookie")
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "UnAuthorized")
+		return 0, err
+	}
+
+	token := cookie.Value
+
+	userIdRaw, err := middleware.GetClaimFromToken(token, "sub")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusInternalServerError, "", err.Error())
+		return 0, err
+	}
+
+	userIdFloat, ok := userIdRaw.(float64)
+	if !ok {
+		log.Println("user_id is not a number")
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Invalid user ID")
+		return 0, err
+	}
+
+	userId := int(userIdFloat)
+	return userId, nil
+}
