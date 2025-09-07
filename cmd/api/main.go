@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
@@ -18,6 +19,10 @@ import (
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env variables are loaded")
+		return
+	}
 	// Loading config
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -51,6 +56,7 @@ func main() {
 	// Using gorilla/mux router and putting logging middleware to every request
 	r := mux.NewRouter()
 	r.Use(middleware.Logging)
+	/*r.Use(middleware.CSP)*/
 
 	// Creation of Each endpoints with access control
 	r.HandleFunc("/signup", handlers.CreateUserHandle).Methods("POST")
@@ -68,7 +74,7 @@ func main() {
 
 	r.Handle("/me", authMw(http.HandlerFunc(handlers.GetInfoAboutMe))).Methods("GET")
 
-	r.Handle("/products", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsHandle)))).Methods("GET")
+	r.Handle("/products", http.HandlerFunc(handlers.ListOfProductsHandle)).Methods("GET")
 	r.Handle("/products/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.GetProductHandle)))).Methods("GET")
 	r.Handle("/productsByCategory/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsByCategory)))).Methods("GET")
 	r.Handle("/productsBySeller/{id}", authMw(RequiredCustomer(http.HandlerFunc(handlers.ListOfProductsBySellerID)))).Methods("GET")
