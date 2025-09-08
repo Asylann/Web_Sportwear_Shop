@@ -46,6 +46,7 @@ func main() {
 
 	// Initialization of connection to Cart Microservice
 	handlers.InitCartClientConnection()
+	handlers.InitOrderServiceConn()
 
 	// Creation of all middlewares
 	authMw := middleware.JWTAuth(cfg.JWT_Secret)
@@ -96,6 +97,10 @@ func main() {
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.GetUserHandle)))).Methods("GET")
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.DeleteUserHandle)))).Methods("DELETE")
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.UpdateUserHandle)))).Methods("PUT")
+
+	r.Handle("/orders", authMw(http.HandlerFunc(handlers.CreateOrderHandle))).Methods("POST")
+	r.Handle("/orders", authMw(http.HandlerFunc(handlers.GetOrdersByUserId))).Methods("GET")
+	r.Handle("/orders/{id}", authMw(http.HandlerFunc(handlers.GetItemsOfOrderById))).Methods("GET")
 
 	// Managing access options with rs/cors that allowed request only set sources
 	c := cors.New(cors.Options{
