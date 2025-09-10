@@ -44,6 +44,8 @@ async function initDashboard() {
 
         // 4) Show universal nav items
         document.getElementById("nav-products").style.display = "inline-block";
+        document.getElementById("nav-orders").style.display = "inline-block";
+        document.getElementById("nav-cart").style.display = "inline-block";
 
         // 5) Role-based nav
         document.getElementById("nav-seller").style.display =

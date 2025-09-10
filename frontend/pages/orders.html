@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders | SportwearShop</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/orders.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<header class="dashboard-header">
+  <div class="dashboard-header-content">
+    <h1>🏀 SportwearShop - My Orders</h1>
+    <div class="header-actions">
+      <a href="cart.html" class="button" style="margin-right: 10px;">🛒 My Cart</a>
+      <a href="products.html" class="button" style="margin-right: 10px;">Products</a>
+      <a href="dashboard.html" class="button">Dashboard</a>
+    </div>
+  </div>
+</header>
+
+<main class="dashboard-main">
+  <div class="orders-container">
+    <div id="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading your orders...</p>
+    </div>
+
+    <div id="orders-content" style="display: none;">
+      <div class="orders-header">
+        <h2 class="orders-title">My Orders</h2>
+        <div id="orders-count" class="orders-count"></div>
+      </div>
+
+      <div id="orders-list" class="orders-list">
+        <!-- Orders will be loaded here -->
+      </div>
+    </div>
+
+    <div id="empty-orders" class="empty-orders" style="display: none;">
+      <div class="empty-orders-icon">📦</div>
+      <h3>No orders yet</h3>
+      <p>You haven't placed any orders. Start shopping to see your orders here!</p>
+      <a href="products.html" class="continue-shopping-btn">Start Shopping</a>
+    </div>
+
+    <div id="error-message" class="error-container" style="display: none;">
+      <div class="error-card">
+        <h3>Error Loading Orders</h3>
+        <p id="error-text">Unable to load your orders. Please try again.</p>
+        <button onclick="loadOrders()" class="button">Try Again</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/orders.js"></script>
+</body>
+</html>
