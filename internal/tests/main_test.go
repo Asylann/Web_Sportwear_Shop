@@ -6,6 +6,7 @@ import (
 	"WebSportwareShop/internal/db"
 	"github.com/joho/godotenv"
 	"log"
+	"os"
 	"testing"
 )
 
@@ -21,9 +22,14 @@ func TestMain(M *testing.M) {
 
 	// Initialization of Db connection
 	db.InitDB(cfg)
-	defer db.CloseDB()
 
 	if err := cache.InitRedisConnection(); err != nil {
 		log.Fatal("Doesnt open redis")
 	}
+
+	code := M.Run()
+
+	db.CloseDB()
+
+	os.Exit(code)
 }

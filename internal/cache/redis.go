@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"log"
 	"os"
@@ -26,5 +27,6 @@ func InitRedisConnection() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	fmt.Println("Yeah")
 	return Rdc.Ping(ctx).Err()
 }

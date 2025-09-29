@@ -11,40 +11,45 @@ import (
 )
 
 func TestListOfProductsHandler(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/products", nil)
-	res := httptest.NewRecorder()
 
-	handlers.ListOfProductsHandle(res, req)
+	t.Run("ValidListOfProducts", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/products", nil)
+		res := httptest.NewRecorder()
 
-	if res.Code != http.StatusOK {
-		t.Fatalf("Server give invalid status %d", res.Code)
-	}
-	var expBody map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&expBody); err != nil {
-		t.Fatalf("Unexpected Body structure %v", res.Body)
-	}
+		handlers.ListOfProductsHandle(res, req)
 
-	fmt.Println("HandlerOF List Product successfully working")
+		if res.Code != http.StatusOK {
+			t.Fatalf("Server give invalid status %d", res.Code)
+		}
+		var expBody map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&expBody); err != nil {
+			t.Fatalf("Unexpected Body structure %v", res.Body)
+		}
+
+		fmt.Println("HandlerOF List Product successfully working")
+	})
 }
 
 func TestLoginHandler(t *testing.T) {
-	loginReq := handlers.LoginReq{Email: "firstuser@gmail.com", Password: "1234"}
-	res := httptest.NewRecorder()
-	loginReqBytes, _ := json.Marshal(loginReq)
-	req := httptest.NewRequest("POST", "/login", bytes.NewBuffer(loginReqBytes))
-	req.Header.Set("Content-Type", "application/json")
-	handlers.LoginHandle(res, req)
+	t.Run("Valid Login Handler", func(t *testing.T) {
+		loginReq := handlers.LoginReq{Email: "firstuser@gmail.com", Password: "1234"}
+		res := httptest.NewRecorder()
+		loginReqBytes, _ := json.Marshal(loginReq)
+		req := httptest.NewRequest("POST", "/login", bytes.NewBuffer(loginReqBytes))
+		req.Header.Set("Content-Type", "application/json")
+		handlers.LoginHandle(res, req)
 
-	if res.Code != http.StatusOK {
-		t.Fatalf("Server in trouble")
-	}
+		if res.Code != http.StatusOK {
+			t.Fatalf("Server in trouble")
+		}
 
-	var expBody string
-	if err := json.NewDecoder(res.Body).Decode(&expBody); err != nil {
-		t.Fatalf("Invalid output")
-	}
+		var expBody map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&expBody); err != nil {
+			t.Fatalf("Invalid output %s", res.Body)
+		}
 
-	fmt.Println("Handler of login handler successfully working")
+		fmt.Println("Handler of login handler successfully working")
+	})
 }
 
 // Unit and Integration testings
