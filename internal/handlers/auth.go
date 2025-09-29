@@ -145,7 +145,7 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "smt went wrong")
 			return
 		}
-		log.Printf("%v`s cart was created!!!")
+		log.Printf("%v`s cart was created!!!", userEmail)
 
 		err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
 		if err != nil {

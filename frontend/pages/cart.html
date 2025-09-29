@@ -267,6 +267,194 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Order Modal Styles */
+        .order-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .order-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .order-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 2px solid #f0f0f0;
+            background: linear-gradient(135deg, #f8f8f8, #ffffff);
+        }
+
+        .order-modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #24292e;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        .order-modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            background-color: #ffffff;
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            border-radius: 0;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #000000;
+        }
+
+        .order-summary-preview {
+            background: #f8f8f8;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 3px solid #000000;
+        }
+
+        .order-summary-preview h4 {
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #24292e;
+        }
+
+        .order-summary-preview .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .order-summary-preview .summary-row.total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #24292e;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 15px;
+        }
+
+        .order-modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .cancel-order-btn,
+        .confirm-order-btn {
+            flex: 1;
+            padding: 15px 25px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid;
+        }
+
+        .cancel-order-btn {
+            background-color: transparent;
+            color: #666;
+            border-color: #ddd;
+        }
+
+        .cancel-order-btn:hover {
+            background-color: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .confirm-order-btn {
+            background-color: #000000;
+            color: white;
+            border-color: #000000;
+        }
+
+        .confirm-order-btn:hover {
+            background-color: #333;
+        }
+
+        .confirm-order-btn:disabled {
+            background-color: #ccc;
+            border-color: #ccc;
+            cursor: not-allowed;
+        }
+
         @media (max-width: 768px) {
             .cart-content {
                 grid-template-columns: 1fr;
@@ -297,6 +485,11 @@
 
             .cart-summary {
                 position: static;
+            }
+
+            .order-modal-content {
+                width: 95%;
+                margin: 5% auto;
             }
         }
     </style>
@@ -346,8 +539,8 @@
                         <span>Total:</span>
                         <span id="summary-total">0 ₸</span>
                     </div>
-                    <button class="checkout-btn" onclick="proceedToCheckout()">
-                        Proceed to Checkout
+                    <button class="checkout-btn" onclick="showOrderForm()">
+                        Place Order
                     </button>
                 </div>
             </div>
@@ -358,6 +551,62 @@
             <h3>Your cart is empty</h3>
             <p>Looks like you haven't added any items to your cart yet.</p>
             <a href="products.html" class="continue-shopping-btn">Start Shopping</a>
+        </div>
+
+        <!-- Order Form Modal -->
+        <div id="order-modal" class="order-modal" style="display: none;">
+            <div class="order-modal-content">
+                <div class="order-modal-header">
+                    <h3>Place Your Order</h3>
+                    <button class="close-modal" onclick="hideOrderForm()">&times;</button>
+                </div>
+                <div class="order-modal-body">
+                    <div class="form-group">
+                        <label for="delivery-address">Delivery Address</label>
+                        <input type="text" id="delivery-address" name="delivery-address"
+                               placeholder="Enter your full delivery address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transport-type">Delivery Speed</label>
+                        <select id="transport-type" name="transport-type" required>
+                            <option value="">Select delivery speed</option>
+                            <option value="Ordinary">Ordinary (4 days) - Free</option>
+                            <option value="Medium">Medium (2 days) - 500 ₸</option>
+                            <option value="Fastest">Fastest (1 day) - 1000 ₸</option>
+                        </select>
+                    </div>
+
+                    <div class="order-summary-preview">
+                        <h4>Order Summary</h4>
+                        <div class="summary-row">
+                            <span>Items:</span>
+                            <span id="modal-items-count">0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="modal-subtotal">0 ₸</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery:</span>
+                            <span id="modal-delivery-cost">0 ₸</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="modal-total">0 ₸</span>
+                        </div>
+                    </div>
+
+                    <div id="order-error" class="error-message" style="display: none;"></div>
+
+                    <div class="order-modal-actions">
+                        <button class="cancel-order-btn" onclick="hideOrderForm()">Cancel</button>
+                        <button class="confirm-order-btn" onclick="confirmOrder()">
+                            <span id="order-btn-text">Place Order</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
@@ -514,21 +763,165 @@
         window.location.href = `product-detail.html?id=${productId}`;
     }
 
-    function proceedToCheckout() {
+    function showOrderForm() {
         if (cartItems.length === 0) {
             utils.showAlert('Your cart is empty', 'error');
             return;
         }
 
-        // For now, just show a success message
-        // In a real app, this would redirect to a checkout page
-        utils.showAlert('Checkout functionality coming soon!', 'success');
+        // Update modal summary
+        updateModalSummary();
+
+        // Show modal
+        document.getElementById('order-modal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }
+
+    function hideOrderForm() {
+        document.getElementById('order-modal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+
+        // Clear form
+        document.getElementById('delivery-address').value = '';
+        document.getElementById('transport-type').value = '';
+        document.getElementById('order-error').style.display = 'none';
+    }
+
+    function updateModalSummary() {
+        const itemCount = cartItems.length;
+        const subtotal = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
+
+        document.getElementById('modal-items-count').textContent = itemCount;
+        document.getElementById('modal-subtotal').textContent = `${subtotal.toFixed(2)} ₸`;
+
+        // Update delivery cost and total when transport type changes
+        updateDeliveryCost();
+
+        // Add event listener for transport type changes
+        document.getElementById('transport-type').addEventListener('change', updateDeliveryCost);
+    }
+
+    function updateDeliveryCost() {
+        const transportType = document.getElementById('transport-type').value;
+        const subtotal = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
+        let deliveryCost = 0;
+
+        switch(transportType) {
+            case 'Ordinary':
+                deliveryCost = 0;
+                break;
+            case 'Medium':
+                deliveryCost = 500;
+                break;
+            case 'Fastest':
+                deliveryCost = 1000;
+                break;
+            default:
+                deliveryCost = 0;
+        }
+
+        const total = subtotal + deliveryCost;
+
+        document.getElementById('modal-delivery-cost').textContent = `${deliveryCost} ₸`;
+        document.getElementById('modal-total').textContent = `${total.toFixed(2)} ₸`;
+    }
+
+    function confirmOrder() {
+        const address = document.getElementById('delivery-address').value.trim();
+        const transportType = document.getElementById('transport-type').value;
+        const errorElement = document.getElementById('order-error');
+        const confirmBtn = document.querySelector('.confirm-order-btn');
+        const btnText = document.getElementById('order-btn-text');
+
+        // Hide previous errors
+        errorElement.style.display = 'none';
+
+        // Validate form
+        if (!address) {
+            showOrderError('Please enter your delivery address');
+            return;
+        }
+
+        if (!transportType) {
+            showOrderError('Please select a delivery speed');
+            return;
+        }
+
+        // Disable button and show loading
+        confirmBtn.disabled = true;
+        btnText.textContent = 'Placing Order...';
+
+        // Prepare order data
+        const orderData = {
+            transport_type: transportType,
+            address: address
+        };
+
+        // Send order request
+        fetch('https://localhost:8080/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: "include",
+            body: JSON.stringify(orderData)
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw new Error(err.error || `HTTP ${res.status}`);
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                // Order successful
+                utils.showAlert('Order placed successfully!', 'success');
+                hideOrderForm();
+
+                // Show success message with delivery date
+                const deliveryDate = data.data || 'Soon';
+                setTimeout(() => {
+                    const viewOrder = confirm(`Order placed successfully! Expected delivery: ${deliveryDate}\n\nWould you like to view your orders?`);
+                    if (viewOrder) {
+                        window.location.href = 'orders.html';
+                    } else {
+                        // Reload cart to show updated state
+                        location.reload();
+                    }
+                }, 500);
+            })
+            .catch(err => {
+                console.error('Error placing order:', err);
+                showOrderError('Failed to place order: ' + err.message);
+            })
+            .finally(() => {
+                // Re-enable button
+                confirmBtn.disabled = false;
+                btnText.textContent = 'Place Order';
+            });
+    }
+
+    function showOrderError(message) {
+        const errorElement = document.getElementById('order-error');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('order-modal');
+        if (event.target === modal) {
+            hideOrderForm();
+        }
+    });
 
     // Make functions available globally
     window.removeFromCart = removeFromCart;
     window.viewProduct = viewProduct;
-    window.proceedToCheckout = proceedToCheckout;
+    window.showOrderForm = showOrderForm;
+    window.hideOrderForm = hideOrderForm;
+    window.confirmOrder = confirmOrder;
 </script>
 </body>
 </html>

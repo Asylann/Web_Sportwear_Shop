@@ -148,7 +148,7 @@ func main() {
 
 	// Forced Shutdown if time has passed
 	if err = srv.Shutdown(ctx); err != nil {
-		log.Println("Server shut down: %v", err.Error())
+		log.Printf("Server shut down: %v", err.Error())
 	}
 	log.Println("Server exiting")
 }
