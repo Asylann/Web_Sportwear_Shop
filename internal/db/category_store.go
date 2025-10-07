@@ -6,16 +6,16 @@ import (
 )
 
 func CreateCategory(ctx context.Context, c *models.Category) error {
-	_, err := stmtCreateCategory.ExecContext(ctx, c.Name, c.Description)
+	_, err := db.ExecContext(ctx, "INSERT INTO categories (name, description)VALUES($1,$2)", c.Name, c.Description)
 	return err
 }
 
 func DeleteCategory(ctx context.Context, id int) error {
-	_, err := stmtDeleteCategory.ExecContext(ctx, id)
+	_, err := db.ExecContext(ctx, "DELETE FROM categories WHERE id=$1", id)
 	return err
 }
 func ListOfCategories(ctx context.Context) ([]models.Category, error) {
-	rows, err := stmtListOfCategory.QueryContext(ctx)
+	rows, err := db.QueryContext(ctx, "SELECT * FROM categories")
 	if err != nil {
 		return nil, err
 	}
@@ -34,12 +34,12 @@ func ListOfCategories(ctx context.Context) ([]models.Category, error) {
 	return categories, nil
 }
 func UpdateCategory(ctx context.Context, c *models.Category) error {
-	_, err := stmtUpdateCategory.ExecContext(ctx, c.ID, c.Name, c.Description)
+	_, err := db.ExecContext(ctx, "UPDATE categories SET name= $2, description=$3 WHERE id= $1", c.ID, c.Name, c.Description)
 	return err
 }
 func GetCategory(ctx context.Context, id int) (models.Category, error) {
 	var p models.Category
-	err := stmtGetCategory.QueryRowContext(ctx, id).Scan(&p.ID, &p.Name, &p.Description)
+	err := db.QueryRowContext(ctx, "SELECT * FROM categories WHERE id=$1", id).Scan(&p.ID, &p.Name, &p.Description)
 	if err != nil {
 		return models.Category{}, err
 	}

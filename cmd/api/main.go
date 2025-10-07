@@ -33,9 +33,11 @@ func main() {
 	// Initialization of Db connection
 	db.InitDB(cfg)
 	defer db.CloseDB()
+	log.Println("DB is connected!!!")
 
 	// Initialization of OAuth and OpenID providers (Github.com and Gooogle.com)
 	config.InitOAuthProviders()
+	log.Println("OAuth and OpenId is connected!!!")
 
 	// Initialization of Redis connection
 	err = cache.InitRedisConnection()
@@ -43,10 +45,13 @@ func main() {
 		log.Fatalf("Error during Init Redis: %v", err.Error())
 		return
 	}
+	log.Println("Redis is connected!!!")
 
 	// Initialization of connection to Cart Microservice
 	handlers.InitCartClientConnection()
+	log.Println("CartClient is connected!!!")
 	handlers.InitOrderServiceConn()
+	log.Println("OrderService is connected!!!")
 
 	// Creation of all middlewares
 	authMw := middleware.JWTAuth(cfg.JWT_Secret)

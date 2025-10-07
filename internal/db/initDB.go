@@ -22,11 +22,9 @@ func InitDB(cfg config.Config) {
 		return
 	}
 	/*RunMigrations(db)*/
-	initStmt(db)
 	db.SetMaxOpenConns(20)
 	db.SetMaxIdleConns(20)
 	db.SetConnMaxLifetime(4 * time.Minute)
-	log.Println("DB is connectedQ!!!")
 }
 
 func CloseDB() {
