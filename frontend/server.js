@@ -35,6 +35,6 @@ const options = {
 };
 
 // Create HTTPS server
-https.createServer(options, app).listen(8081, () => {
-    console.log('Frontend HTTPS server running on https://localhost:8081');
+https.createServer(options, app).listen(8082, () => {
+    console.log('Frontend HTTPS server running on https://localhost:8082');
 });

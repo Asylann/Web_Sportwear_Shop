@@ -67,6 +67,30 @@ func CreateOrderHandle(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	ctx, cancel = context.WithTimeout(context.Background(), 4*time.Second)
+	defer cancel()
+	r2, err := OrderClient.GetItemsOfOrderById(ctx, &opb.GetItemsOfOrderByIdRequest{OrderId: int32(r.OrderId)})
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Smt went wrong!")
+		return
+	}
+
+	var products []models.Product
+	for _, v := range r2.ListOfProductsId {
+		product, err := db.GetProduct(ctx, int(v))
+		if err != nil {
+			continue
+		}
+		err = db.MakeAPayment(ctx, UserId, product.SellerID, product.Price)
+		if err != nil {
+			log.Println(err.Error())
+			httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Smt went wrong!")
+			return
+		}
+		products = append(products, product)
+	}
+
 	log.Printf("User by id %v made an order with cart is %v and transport %v to address %v", UserId, r1.Cart.Id, body.TransportType, body.Address)
 	httpresponse.WriteJSON(res, http.StatusOK, r.DeliveredAt.AsTime().Format("2006-01-02 15:04:05"), "")
 	return

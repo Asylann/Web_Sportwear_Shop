@@ -49,7 +49,7 @@
     });
 
     function loadUsers() {
-        fetch('https://localhost:8080/users', {
+        fetch('https://localhost:8081/api/users', {
             credentials : "include"
         })
             .then(res => res.json())
@@ -98,7 +98,7 @@
     }
 
     function loadProducts() {
-        fetch('https://localhost:8080/products', {
+        fetch('https://localhost:8081/api/products', {
             credentials : "include"
         })
             .then(res => res.json())
@@ -135,7 +135,7 @@
     function deleteProduct(productId) {
         if (!confirm('Are you sure you want to delete this product?')) return;
 
-        fetch(`https://localhost:8080/products/${productId}`, {
+        fetch(`https://localhost:8081/api/products/${productId}`, {
             method: 'DELETE',
             credentials : "include"
         })
@@ -153,7 +153,7 @@
     function deleteUser(userId) {
         if (!confirm('Are you sure you want to delete this user?')) return;
 
-        fetch(`https://localhost:8080/users/${userId}`, {
+        fetch(`https://localhost:8081/api/users/${userId}`, {
             method: 'DELETE',
             credentials : "include"
         })

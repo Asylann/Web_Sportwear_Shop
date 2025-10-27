@@ -23,11 +23,6 @@ func HashingToBytes(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), 12)
 }
 
-func CompareHashedPassword(password string, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
-}
-
 type LoginReq struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -41,26 +36,20 @@ func LoginHandle(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	fmt.Println(r_user.Password)
 	ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
 	defer cancel()
 
 	userInDB, err := db.GetUserByEmail(ctx, r_user.Email)
 	if err != nil {
 		log.Println("Invalid email or Unauthorized")
-		http.Error(res, "Invalid email or Unauthorized", http.StatusUnauthorized)
+		httpresponse.WriteJSON(res, http.StatusUnauthorized, "", "Invalid email or Unauthorized")
 		return
 	}
 
-	enteredHashedPassword, err := HashingToBytes(r_user.Password)
-	if err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(res, http.StatusInternalServerError, "", err.Error())
-		return
-	}
-
-	if CompareHashedPassword(string(enteredHashedPassword), userInDB.Password) {
+	if err := bcrypt.CompareHashAndPassword([]byte(userInDB.Password), []byte(r_user.Password)); err != nil {
 		log.Println("Invalid password")
-		http.Error(res, "Invalid password", http.StatusUnauthorized)
+		httpresponse.WriteJSON(res, http.StatusUnauthorized, "", "Invalid password or Unauthorized")
 		return
 	}
 
@@ -75,7 +64,7 @@ func LoginHandle(res http.ResponseWriter, req *http.Request) {
 		Name:     "auth_token",
 		Value:    signedToken,
 		Path:     "/",
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
 		HttpOnly: true,
 	})

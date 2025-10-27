@@ -107,9 +107,10 @@ func main() {
 	r.Handle("/orders", authMw(http.HandlerFunc(handlers.GetOrdersByUserId))).Methods("GET")
 	r.Handle("/orders/{id}", authMw(http.HandlerFunc(handlers.GetItemsOfOrderById))).Methods("GET")
 
+	r.Handle("/wallet", authMw(http.HandlerFunc(handlers.GetUserWalletHandle))).Methods("GET")
 	// Managing access options with rs/cors that allowed request only set sources
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://localhost:8081"},
+		AllowedOrigins:   []string{"https://localhost:8081", "https://localhost:8082"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*", "Etag"},
 		AllowCredentials: true,

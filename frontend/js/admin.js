@@ -69,7 +69,7 @@ function testApiConnection() {
     console.log("Testing API connection...");
 
     // Test with a simple API call
-    fetch("https://localhost:8080/categories", {
+    fetch("https://localhost:8081/api/categories", {
         credentials : "include",
     })
         .then(response => {

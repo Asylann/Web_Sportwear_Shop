@@ -624,7 +624,7 @@
     });
 
     function loadCartItems() {
-        fetch('https://localhost:8080/myCart', {
+        fetch('https://localhost:8081/api/myCart', {
             credentials: "include"
         })
             .then(res => {
@@ -724,7 +724,7 @@
             return;
         }
 
-        fetch(`https://localhost:8080/myCart/${productId}`, {
+        fetch(`https://localhost:8081/api/myCart/${productId}`, {
             method: 'DELETE',
             credentials: "include"
         })
@@ -858,7 +858,7 @@
         };
 
         // Send order request
-        fetch('https://localhost:8080/orders', {
+        fetch('https://localhost:8081/api/orders', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

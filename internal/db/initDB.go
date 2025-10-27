@@ -2,17 +2,17 @@ package db
 
 import (
 	"WebSportwareShop/internal/config"
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
 	"time"
 )
 
-var db *sql.DB
+var db *sqlx.DB
 
 func InitDB(cfg config.Config) {
 	var err error
-	db, err = sql.Open("postgres", cfg.DatabaseConnection)
+	db, err = sqlx.Open("postgres", cfg.DatabaseConnection)
 	if err != nil {
 		log.Fatal(err.Error())
 		return

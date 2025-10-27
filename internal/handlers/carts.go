@@ -199,7 +199,9 @@ func GetItemsOfCartByIdHandle(res http.ResponseWriter, req *http.Request) {
 	etag := `"` + mdHashing([]byte(etagStr)) + `"`
 
 	res.Header().Set("ETag", etag)
-	res.Header().Set("Cache-Control", "max-age=30 public must-revalidate")
+	res.Header().Set("Cache-Control", "public, max-age=5, must-revalidate")
+	log.Printf("version=%d etagStr=%q computedETag=%q If-None-Match=%q",
+		etagRes.GetVersion(), etagStr, etag, req.Header.Get("If-None-Match"))
 
 	if match := req.Header.Get("If-None-Match"); match == etag {
 		log.Printf("Cart of %v was received By http caching", userEmail)

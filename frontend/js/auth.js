@@ -1,7 +1,7 @@
 // frontend/js/auth.js
 
 // Base URL for your API
-const API_BASE = "https://localhost:8080";
+const API_BASE = "https://localhost:8081/api";
 
 // Helper: show error message under the form
 function showError(message) {
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 if (!res.ok) {
                     const err = await res.json();
-                    showError(err.error || "Login failed");
+                    showError(err.err || "Login failed: Invalid Email or Password");
                     return;
                 }
 
@@ -151,10 +151,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function loginWithGoogle() {
 
-    window.location.href = "https://localhost:8080/auth/google/login";
+    window.location.href = "https://localhost:8081/api/auth/google/login";
 }
 
 function loginWithGithub() {
 
-    window.location.href = "https://localhost:8080/auth/github/login";
+    window.location.href = "https://localhost:8081/api/auth/github/login";
 }

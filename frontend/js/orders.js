@@ -1,6 +1,6 @@
 // orders.js - Handle orders page functionality
 
-const API_BASE = "https://localhost:8080";
+const API_BASE = "https://localhost:8081/api";
 
 let orders = [];
 let expandedOrders = new Set(); // Track which orders are expanded

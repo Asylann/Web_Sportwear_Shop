@@ -55,6 +55,15 @@ func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	walletId, err := db.CreateWalletByUserId(ctx, id)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, nil, err.Error())
+		return
+	}
+
+	log.Printf("%v`s wallet was created!!!", walletId)
+
 	_, err = c.CreateCart(ctx, &pb.CreateCartRequest{UserId: int32(id)})
 	if err != nil {
 		log.Println(err.Error())
@@ -73,6 +82,39 @@ func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 
 	httpresponse.WriteJSON(w, http.StatusCreated, u.Email, "")
 	log.Printf("User was created! : %v \n", u)
+}
+
+func GetUserWalletHandle(res http.ResponseWriter, req *http.Request) {
+	cookie, err := req.Cookie("auth_token")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	idItf, err := middleware.GetClaimFromToken(tokenStr, "sub")
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "not found claims")
+		return
+	}
+
+	idFloat := idItf.(float64)
+	id := int(idFloat)
+
+	ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
+	defer cancel()
+	wallet, err := db.GetWalletByUserId(ctx, id)
+	if err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusNotFound, "", "not found wallet")
+		return
+	}
+
+	log.Printf("User`s by id =%s wallet was received", wallet.UserId)
+	httpresponse.WriteJSON(res, http.StatusOK, wallet, "")
 }
 
 func GetUserHandle(w http.ResponseWriter, r *http.Request) {
@@ -145,7 +187,7 @@ func ListOfUsersHandle(w http.ResponseWriter, r *http.Request) {
 	etag := `"` + mdHashing([]byte(versionStr)) + `"`
 
 	w.Header().Set("ETag", etag)
-	w.Header().Set("Cache-Control", "max-age=30 ,public")
+	w.Header().Set("Cache-Control", "max-age=3 ,public")
 
 	if match := r.Header.Get("If-None-Match"); match == etag {
 		w.WriteHeader(http.StatusNotModified)

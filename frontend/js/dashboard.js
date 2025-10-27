@@ -1,6 +1,6 @@
 // dashboard.js
 
-const API_BASE = "https://localhost:8080";
+const API_BASE = "https://localhost:8081/api";
 
 document.addEventListener("DOMContentLoaded", () => {
     initDashboard();
