@@ -6,9 +6,9 @@ import (
 	"WebSportwareShop/internal/middleware"
 	"WebSportwareShop/internal/models"
 	"context"
-
-	pb "github.com/Asylann/gRPC_Demo/proto"
 	"github.com/gorilla/mux"
+
+	pb "github.com/Asylann/grpc-demo/proto"
 	"google.golang.org/grpc"
 	"log"
 	"net/http"
@@ -20,7 +20,7 @@ import (
 var c pb.CartServiceClient
 
 func InitCartClientConnection() {
-	conn, err := grpc.Dial(":50051", grpc.WithInsecure())
+	conn, err := grpc.Dial("cart_service:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err.Error())
 	}

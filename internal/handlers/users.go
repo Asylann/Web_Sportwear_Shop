@@ -9,7 +9,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	pb "github.com/Asylann/gRPC_Demo/proto"
+	pb "github.com/Asylann/grpc-demo/proto"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -30,11 +30,16 @@ func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
-	users, err := db.ListOfUsers(context.Background())
-	for _, user := range users {
-		if user.Email == u.Email {
-			httpresponse.WriteJSON(w, http.StatusConflict, nil, "Already exists")
-		}
+	exists, err := db.UserExistsByEmail(r.Context(), u.Email)
+	if err != nil {
+		log.Println("db error:", err)
+		httpresponse.WriteJSON(w, http.StatusInternalServerError, nil, "internal error")
+		return
+	}
+	if exists {
+		log.Println("OOOOP: ")
+		httpresponse.WriteJSON(w, http.StatusConflict, nil, "Already exists")
+		return
 	}
 
 	hashedPassword, err := HashingToBytes(u.Password)
@@ -50,7 +55,7 @@ func CreateUserHandle(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	id, err := db.CreateUser(ctx, &u)
 	if err != nil {
-		log.Println(err.Error())
+		log.Println("Here" + err.Error())
 		httpresponse.WriteJSON(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}

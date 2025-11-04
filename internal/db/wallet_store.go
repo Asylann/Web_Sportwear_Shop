@@ -8,7 +8,7 @@ import (
 
 func CreateWalletByUserId(ctx context.Context, userId int) (int, error) {
 	var id int
-	err := db.QueryRowContext(ctx, "INSERT INTO wallets(user_id) VALUES($1)", userId).Scan(&id)
+	err := db.QueryRowContext(ctx, "INSERT INTO wallets(user_id) VALUES($1) RETURNING id", userId).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

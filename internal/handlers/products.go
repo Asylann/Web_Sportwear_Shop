@@ -7,7 +7,7 @@ import (
 	"WebSportwareShop/internal/models"
 	"context"
 	"encoding/json"
-	pb "github.com/Asylann/gRPC_Demo/proto"
+	pb "github.com/Asylann/grpc-demo/proto"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"log"

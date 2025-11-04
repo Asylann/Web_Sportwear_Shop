@@ -6,12 +6,13 @@ import (
 	"WebSportwareShop/internal/models"
 	"context"
 	"encoding/json"
-	opb "github.com/Asylann/OrderServiceGRPC/proto"
-	pb "github.com/Asylann/gRPC_Demo/proto"
+	pb "github.com/Asylann/grpc-demo/proto"
+	opb "github.com/Asylann/orderservicegrpc/proto"
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -19,7 +20,7 @@ import (
 var OrderClient opb.OrderServiceClient
 
 func InitOrderServiceConn() {
-	conn, err := grpc.Dial(":50052", grpc.WithInsecure())
+	conn, err := grpc.Dial("order_service:50052", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Order service is not connected: %s", err.Error())
 		return
@@ -91,9 +92,30 @@ func CreateOrderHandle(res http.ResponseWriter, req *http.Request) {
 		products = append(products, product)
 	}
 
+	if err := PaymentForTransport(ctx, UserId, body); err != nil {
+		log.Println(err.Error())
+		httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Smt went wrong!")
+	}
+
 	log.Printf("User by id %v made an order with cart is %v and transport %v to address %v", UserId, r1.Cart.Id, body.TransportType, body.Address)
 	httpresponse.WriteJSON(res, http.StatusOK, r.DeliveredAt.AsTime().Format("2006-01-02 15:04:05"), "")
 	return
+}
+
+func PaymentForTransport(ctx context.Context, UserId int, body BodyOfCreate) error {
+	var TransportPrice float64
+	if body.TransportType == "Fastest" {
+		TransportPrice = 1000
+	} else if body.TransportType == "Medium" {
+		TransportPrice = 500
+	}
+
+	AdminId, _ := strconv.Atoi(os.Getenv("ADMIN_ID"))
+	err := db.MakeAPayment(ctx, UserId, AdminId, TransportPrice)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type OrderDTO struct {

@@ -53,6 +53,8 @@ func main() {
 	handlers.InitOrderServiceConn()
 	log.Println("OrderService is connected!!!")
 
+	db.SetEtagVersionByName(context.Background(), "ListOfUsers")
+
 	// Creation of all middlewares
 	authMw := middleware.JWTAuth(cfg.JWT_Secret)
 	RequiredCustomer := middleware.RequireRole(1, 2, 3)

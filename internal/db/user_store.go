@@ -3,6 +3,8 @@ package db
 import (
 	"WebSportwareShop/internal/models"
 	"context"
+	"database/sql"
+	"log"
 )
 
 func GetUserByEmail(ctx context.Context, email string) (models.User, error) {
@@ -17,8 +19,28 @@ func GetUserByEmail(ctx context.Context, email string) (models.User, error) {
 func CreateUser(ctx context.Context, u *models.User) (int, error) {
 	var id int
 	err := db.QueryRowContext(ctx, "INSERT INTO users (email, password, role_id) VALUES($1,$2,$3) RETURNING id", u.Email, u.Password, u.RoleId).Scan(&id)
+	if err != nil {
+		// log helpful message, but return the error to caller
+		log.Println("CreateUser Scan error:", err)
+		return 0, err
+	}
 	u.ID = id
 	return id, err
+}
+
+func UserExistsByEmail(ctx context.Context, email string) (bool, error) {
+	var id int
+	err := db.QueryRowContext(ctx, "SELECT id FROM users WHERE email=$1", email).Scan(&id)
+	if err == sql.ErrNoRows {
+		log.Println("UserExistsByEmail:", email, "→ false (no rows)")
+		return false, nil
+	}
+	if err != nil {
+		log.Println("UserExistsByEmail error:", err)
+		return false, err
+	}
+	log.Println("UserExistsByEmail:", email, "→ true (found id", id, ")")
+	return true, nil
 }
 
 func DeleteUser(ctx context.Context, id int) error {
@@ -80,5 +102,11 @@ func ChangeEtagVersionByName(ctx context.Context, name string) error {
 	}
 	version++
 	_, err = db.ExecContext(ctx, "UPDATE etag_versions SET version=$2 WHERE name=$1", name, version)
+	return err
+}
+
+func SetEtagVersionByName(ctx context.Context, name string) error {
+	var version int
+	err := db.QueryRowContext(ctx, "insert into etag_versions(name, version) VALUES($1,1)", name).Scan(&version)
 	return err
 }

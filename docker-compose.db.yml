@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:17
+    container_name: sportwear_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: web_sportwear_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d web_sportwear_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sportwear-net
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sportwear-net
+  migrate:
+    image: migrate/migrate
+    container_name: migrate_all
+    depends_on:
+      db:
+        condition: service_healthy
+      cart_db:
+        condition: service_healthy
+      order_db:
+        condition: service_healthy
+    networks:
+      - sportwear-net
+    volumes:
+      - ../gRPC_Demo/server/migrations:/migrations/cart
+      - ../OrderService/server/migrations:/migrations/order
+      - ./migrations:/migrations/web
+    entrypoint: [ "/bin/sh", "-c" ]
+    command: >
+      "
+      migrate -path=/migrations/web -database postgres://postgres:postgres@db:5432/web_sportwear_db?sslmode=disable up &&
+      migrate -path=/migrations/cart -database postgres://postgres:postgres@cart_db:5432/grpc_db?sslmode=disable up &&
+      migrate -path=/migrations/order -database postgres://postgres:postgres@order_db:5432/order_db?sslmode=disable up
+      "
+volumes:
+  db_data:
+  redis_data:

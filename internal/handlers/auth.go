@@ -9,7 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	pb "github.com/Asylann/gRPC_Demo/proto"
+	pb "github.com/Asylann/grpc-demo/proto"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth/gothic"
@@ -121,20 +121,40 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 		} else {
 			u = models.User{Email: userEmail, Password: "nullByGithub", RoleId: 1}
 		}
-		id, err := db.CreateUser(ctx, &u)
+		hashedPassword, err := HashingToBytes(u.Password)
 		if err != nil {
 			log.Println(err.Error())
-			httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Error during creation of user")
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "Can not generate hash tp such password")
 			return
 		}
+
+		u.Password = string(hashedPassword)
+
+		ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
+		defer cancel()
+		id, err := db.CreateUser(ctx, &u)
+		if err != nil {
+			log.Println("Here" + err.Error())
+			httpresponse.WriteJSON(res, http.StatusBadRequest, nil, err.Error())
+			return
+		}
+
+		walletId, err := db.CreateWalletByUserId(ctx, id)
+		if err != nil {
+			log.Println(err.Error())
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, nil, err.Error())
+			return
+		}
+
+		log.Printf("%v`s wallet was created!!!", walletId)
 
 		_, err = c.CreateCart(ctx, &pb.CreateCartRequest{UserId: int32(id)})
 		if err != nil {
 			log.Println(err.Error())
-			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "smt went wrong")
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "Can not create cart")
 			return
 		}
-		log.Printf("%v`s cart was created!!!", userEmail)
+		log.Printf("%v`s cart was created!!!", u.Email)
 
 		err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
 		if err != nil {
@@ -143,8 +163,8 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 		log.Println("Version of ListOfUsers was changed to +1")
+		log.Printf("User was created! : %v \n", u)
 
-		log.Printf("User was created = %v", u)
 	}
 
 	userInDB, _ := db.GetUserByEmail(ctx, userEmail)

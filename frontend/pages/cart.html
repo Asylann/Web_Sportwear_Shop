@@ -27,11 +27,17 @@
             font-size: 2rem;
             color: #24292e;
             margin: 0;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .cart-count {
             color: #666;
             font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .cart-content {
@@ -43,8 +49,7 @@
 
         .cart-items {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border: 1px solid #e1e1e1;
             overflow: hidden;
         }
 
@@ -68,7 +73,6 @@
             width: 100px;
             height: 100px;
             object-fit: cover;
-            border-radius: 8px;
             margin-right: 20px;
             cursor: pointer;
             transition: transform 0.2s ease;
@@ -82,13 +86,15 @@
             width: 100px;
             height: 100px;
             background: #f0f0f0;
-            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 20px;
             color: #666;
             font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .item-details {
@@ -105,7 +111,7 @@
         }
 
         .item-name:hover {
-            color: #4CAF50;
+            color: #000;
         }
 
         .item-description {
@@ -125,7 +131,7 @@
         .item-price {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #4CAF50;
+            color: #000;
             margin: 0 20px 0 0;
         }
 
@@ -134,9 +140,11 @@
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 6px;
             cursor: pointer;
             font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: all 0.2s ease;
         }
 
@@ -147,8 +155,7 @@
 
         .cart-summary {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border: 1px solid #e1e1e1;
             padding: 25px;
             height: fit-content;
             position: sticky;
@@ -157,11 +164,42 @@
 
         .summary-title {
             font-size: 1.4rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #24292e;
             margin: 0 0 20px 0;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 2px solid #e9ecef;
             padding-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .wallet-balance {
+            background: linear-gradient(135deg, #f8f8f8, #ffffff);
+            border: 2px solid #e1e1e1;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #000;
+        }
+
+        .wallet-balance-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .wallet-balance-amount {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .wallet-balance-amount.insufficient {
+            color: #dc3545;
         }
 
         .summary-row {
@@ -183,29 +221,31 @@
 
         .checkout-btn {
             width: 100%;
-            background: #4CAF50;
+            background: #000;
             color: white;
-            border: none;
+            border: 2px solid #000;
             padding: 15px;
-            border-radius: 8px;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             margin-top: 20px;
             transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .checkout-btn:hover {
-            background: #45a049;
+            background: white;
+            color: #000;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
         .checkout-btn:disabled {
             background: #ccc;
+            border-color: #ccc;
+            color: #666;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
         .empty-cart {
@@ -224,6 +264,9 @@
             color: #24292e;
             margin-bottom: 15px;
             font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .empty-cart p {
@@ -232,18 +275,21 @@
         }
 
         .continue-shopping-btn {
-            background: #4CAF50;
+            background: #000;
             color: white;
             text-decoration: none;
             padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 600;
+            font-weight: 700;
             transition: all 0.2s ease;
             display: inline-block;
+            border: 2px solid #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .continue-shopping-btn:hover {
-            background: #45a049;
+            background: white;
+            color: #000;
             transform: translateY(-2px);
         }
 
@@ -254,7 +300,7 @@
 
         .loading-spinner {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
+            border-top: 3px solid #000;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -286,7 +332,6 @@
             padding: 0;
             width: 90%;
             max-width: 600px;
-            border-radius: 0;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             animation: modalSlideIn 0.3s ease-out;
         }
@@ -365,7 +410,6 @@
             background-color: #ffffff;
             font-size: 16px;
             font-family: 'Montserrat', sans-serif;
-            border-radius: 0;
             transition: border-color 0.2s ease;
         }
 
@@ -408,6 +452,16 @@
             margin-top: 15px;
         }
 
+        .order-summary-preview .summary-row.balance {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .order-summary-preview .summary-row.balance.insufficient {
+            color: #dc3545;
+        }
+
         .order-modal-actions {
             display: flex;
             gap: 15px;
@@ -422,7 +476,6 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-radius: 0;
             cursor: pointer;
             transition: all 0.2s ease;
             border: 2px solid;
@@ -453,6 +506,18 @@
             background-color: #ccc;
             border-color: #ccc;
             cursor: not-allowed;
+        }
+
+        .insufficient-funds-warning {
+            background: #ffeaea;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            color: #dc3545;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
@@ -523,6 +588,12 @@
 
                 <div class="cart-summary">
                     <h3 class="summary-title">Order Summary</h3>
+
+                    <div class="wallet-balance">
+                        <div class="wallet-balance-title">Your Wallet Balance</div>
+                        <div id="wallet-balance-display" class="wallet-balance-amount">Loading...</div>
+                    </div>
+
                     <div class="summary-row">
                         <span>Items:</span>
                         <span id="summary-items">0</span>
@@ -579,6 +650,10 @@
 
                     <div class="order-summary-preview">
                         <h4>Order Summary</h4>
+                        <div class="summary-row balance">
+                            <span>Wallet Balance:</span>
+                            <span id="modal-wallet-balance">0 ₸</span>
+                        </div>
                         <div class="summary-row">
                             <span>Items:</span>
                             <span id="modal-items-count">0</span>
@@ -595,13 +670,21 @@
                             <span>Total:</span>
                             <span id="modal-total">0 ₸</span>
                         </div>
+                        <div class="summary-row balance" id="remaining-balance-row">
+                            <span>Remaining Balance:</span>
+                            <span id="modal-remaining-balance">0 ₸</span>
+                        </div>
+                    </div>
+
+                    <div id="insufficient-funds-warning" class="insufficient-funds-warning" style="display: none;">
+                        ⚠️ Insufficient funds in wallet
                     </div>
 
                     <div id="order-error" class="error-message" style="display: none;"></div>
 
                     <div class="order-modal-actions">
                         <button class="cancel-order-btn" onclick="hideOrderForm()">Cancel</button>
-                        <button class="confirm-order-btn" onclick="confirmOrder()">
+                        <button class="confirm-order-btn" id="confirm-order-button" onclick="confirmOrder()">
                             <span id="order-btn-text">Place Order</span>
                         </button>
                     </div>
@@ -615,13 +698,61 @@
 <script src="../js/utils.js"></script>
 <script>
     let cartItems = [];
+    let walletBalance = 0;
 
     document.addEventListener("DOMContentLoaded", () => {
         if (!utils.checkAuth()) return;
         if (!utils.checkRole(1, 2, 3)) return;
 
-        loadCartItems();
+        loadWalletAndCart();
     });
+
+    function loadWalletAndCart() {
+        // Load wallet first, then cart
+        loadWalletBalance()
+            .then(() => loadCartItems())
+            .catch(err => {
+                console.error('Error loading wallet:', err);
+                loadCartItems(); // Still load cart even if wallet fails
+            });
+    }
+
+    function loadWalletBalance() {
+        return fetch('https://localhost:8081/api/wallet', {
+            credentials: "include"
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.data) {
+                    walletBalance = data.data.balance || 0;
+                    displayWalletBalance();
+                }
+            });
+    }
+
+    function displayWalletBalance() {
+        const balanceDisplay = document.getElementById('wallet-balance-display');
+        if (balanceDisplay) {
+            balanceDisplay.textContent = `${walletBalance.toFixed(2)} ${getCurrency()}`;
+
+            // Check if balance is sufficient for current cart
+            const total = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
+            if (walletBalance < total) {
+                balanceDisplay.classList.add('insufficient');
+            } else {
+                balanceDisplay.classList.remove('insufficient');
+            }
+        }
+    }
+
+    function getCurrency() {
+        return '₸'; // Tenge currency
+    }
 
     function loadCartItems() {
         fetch('https://localhost:8081/api/myCart', {
@@ -629,7 +760,7 @@
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTPs ${res.status}`);
+                    throw new Error(`HTTP ${res.status}`);
                 }
                 return res.json();
             })
@@ -671,6 +802,7 @@
 
         // Update summary
         updateCartSummary();
+        displayWalletBalance();
     }
 
     function createCartItemElement(item) {
@@ -708,15 +840,21 @@
     function updateCartSummary() {
         const itemCount = cartItems.length;
         const subtotal = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
-        const total = subtotal; // Free shipping
+        const total = subtotal;
 
         document.getElementById('summary-items').textContent = itemCount;
         document.getElementById('summary-subtotal').textContent = `${subtotal.toFixed(2)} ₸`;
         document.getElementById('summary-total').textContent = `${total.toFixed(2)} ₸`;
 
-        // Enable/disable checkout button
+        // Enable/disable checkout button based on balance
         const checkoutBtn = document.querySelector('.checkout-btn');
-        checkoutBtn.disabled = itemCount === 0;
+        checkoutBtn.disabled = itemCount === 0 || walletBalance < total;
+
+        if (walletBalance < total && itemCount > 0) {
+            checkoutBtn.textContent = 'Insufficient Funds';
+        } else {
+            checkoutBtn.textContent = 'Place Order';
+        }
     }
 
     function removeFromCart(productId) {
@@ -730,27 +868,24 @@
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTPs ${res.status}`);
+                    throw new Error(`HTTP ${res.status}`);
                 }
                 utils.showAlert('Item removed from cart', 'success');
 
-                // Remove item from local array
                 cartItems = cartItems.filter(item => item.id !== productId);
 
-                // Remove item element from DOM
                 const itemElement = document.querySelector(`[data-product-id="${productId}"]`);
                 if (itemElement) {
                     itemElement.remove();
                 }
 
-                // Update display
                 if (cartItems.length === 0) {
                     displayEmptyCart();
                 } else {
-                    // Update cart count and summary
                     const cartCount = cartItems.length;
                     document.getElementById('cart-count').textContent = `${cartCount} item${cartCount !== 1 ? 's' : ''}`;
                     updateCartSummary();
+                    displayWalletBalance();
                 }
             })
             .catch(err => {
@@ -769,22 +904,26 @@
             return;
         }
 
-        // Update modal summary
-        updateModalSummary();
+        const total = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
 
-        // Show modal
+        if (walletBalance < total) {
+            utils.showAlert('Insufficient funds in wallet. Please add funds to continue.', 'error');
+            return;
+        }
+
+        updateModalSummary();
         document.getElementById('order-modal').style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        document.body.style.overflow = 'hidden';
     }
 
     function hideOrderForm() {
         document.getElementById('order-modal').style.display = 'none';
-        document.body.style.overflow = 'auto'; // Restore scrolling
+        document.body.style.overflow = 'auto';
 
-        // Clear form
         document.getElementById('delivery-address').value = '';
         document.getElementById('transport-type').value = '';
         document.getElementById('order-error').style.display = 'none';
+        document.getElementById('insufficient-funds-warning').style.display = 'none';
     }
 
     function updateModalSummary() {
@@ -793,11 +932,10 @@
 
         document.getElementById('modal-items-count').textContent = itemCount;
         document.getElementById('modal-subtotal').textContent = `${subtotal.toFixed(2)} ₸`;
+        document.getElementById('modal-wallet-balance').textContent = `${walletBalance.toFixed(2)} ₸`;
 
-        // Update delivery cost and total when transport type changes
         updateDeliveryCost();
 
-        // Add event listener for transport type changes
         document.getElementById('transport-type').addEventListener('change', updateDeliveryCost);
     }
 
@@ -821,9 +959,28 @@
         }
 
         const total = subtotal + deliveryCost;
+        const remainingBalance = walletBalance - total;
 
         document.getElementById('modal-delivery-cost').textContent = `${deliveryCost} ₸`;
         document.getElementById('modal-total').textContent = `${total.toFixed(2)} ₸`;
+        document.getElementById('modal-remaining-balance').textContent = `${remainingBalance.toFixed(2)} ₸`;
+
+        const balanceRow = document.getElementById('modal-wallet-balance').closest('.summary-row');
+        const remainingRow = document.getElementById('remaining-balance-row');
+        const warningDiv = document.getElementById('insufficient-funds-warning');
+        const confirmBtn = document.getElementById('confirm-order-button');
+
+        if (remainingBalance < 0) {
+            balanceRow.classList.add('insufficient');
+            remainingRow.classList.add('insufficient');
+            warningDiv.style.display = 'block';
+            confirmBtn.disabled = true;
+        } else {
+            balanceRow.classList.remove('insufficient');
+            remainingRow.classList.remove('insufficient');
+            warningDiv.style.display = 'none';
+            confirmBtn.disabled = false;
+        }
     }
 
     function confirmOrder() {
@@ -833,10 +990,8 @@
         const confirmBtn = document.querySelector('.confirm-order-btn');
         const btnText = document.getElementById('order-btn-text');
 
-        // Hide previous errors
         errorElement.style.display = 'none';
 
-        // Validate form
         if (!address) {
             showOrderError('Please enter your delivery address');
             return;
@@ -847,17 +1002,30 @@
             return;
         }
 
-        // Disable button and show loading
+        // Calculate total with delivery
+        let deliveryCost = 0;
+        switch(transportType) {
+            case 'Medium': deliveryCost = 500; break;
+            case 'Fastest': deliveryCost = 1000; break;
+        }
+
+        const subtotal = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
+        const total = subtotal + deliveryCost;
+
+        // Final balance check
+        if (walletBalance < total) {
+            showOrderError('Insufficient funds. Please add money to your wallet.');
+            return;
+        }
+
         confirmBtn.disabled = true;
         btnText.textContent = 'Placing Order...';
 
-        // Prepare order data
         const orderData = {
             transport_type: transportType,
             address: address
         };
 
-        // Send order request
         fetch('https://localhost:8081/api/orders', {
             method: 'POST',
             headers: {
@@ -875,18 +1043,18 @@
                 return res.json();
             })
             .then(data => {
-                // Order successful
                 utils.showAlert('Order placed successfully!', 'success');
                 hideOrderForm();
 
-                // Show success message with delivery date
+                // Reload wallet balance
+                loadWalletBalance();
+
                 const deliveryDate = data.data || 'Soon';
                 setTimeout(() => {
-                    const viewOrder = confirm(`Order placed successfully! Expected delivery: ${deliveryDate}\n\nWould you like to view your orders?`);
+                    const viewOrder = confirm(`Order placed successfully!\nExpected delivery: ${deliveryDate}\nAmount deducted: ${total.toFixed(2)} ₸\n\nWould you like to view your orders?`);
                     if (viewOrder) {
                         window.location.href = 'orders.html';
                     } else {
-                        // Reload cart to show updated state
                         location.reload();
                     }
                 }, 500);
@@ -896,7 +1064,6 @@
                 showOrderError('Failed to place order: ' + err.message);
             })
             .finally(() => {
-                // Re-enable button
                 confirmBtn.disabled = false;
                 btnText.textContent = 'Place Order';
             });
@@ -908,7 +1075,6 @@
         errorElement.style.display = 'block';
     }
 
-    // Close modal when clicking outside
     window.addEventListener('click', function(event) {
         const modal = document.getElementById('order-modal');
         if (event.target === modal) {
@@ -916,7 +1082,6 @@
         }
     });
 
-    // Make functions available globally
     window.removeFromCart = removeFromCart;
     window.viewProduct = viewProduct;
     window.showOrderForm = showOrderForm;
