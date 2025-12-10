@@ -30,3 +30,7 @@
 2025/11/04 15:23:23 [error] 29#29: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.19.0.1, server: vertigoshop.com, request: "GET /api/products HTTP/2.0", upstream: "https://127.0.0.1:8080/products", host: "localhost:8081"
 2025/11/04 15:23:26 [error] 29#29: *1 open() "/usr/share/nginx/html/.well-known/appspecific/com.chrome.devtools.json" failed (2: No such file or directory), client: 172.19.0.1, server: vertigoshop.com, request: "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/2.0", host: "localhost:8081"
 2025/11/04 15:23:26 [error] 29#29: *1 no live upstreams while connecting to upstream, client: 172.19.0.1, server: vertigoshop.com, request: "GET /api/products HTTP/2.0", upstream: "https://backend/products", host: "localhost:8081"
+2025/12/09 20:00:42 [emerg] 1#1: unknown log format "http2" in /etc/nginx/nginx.conf:39
+2025/12/09 20:01:29 [emerg] 1#1: unknown log format "http2" in /etc/nginx/nginx.conf:39
+2025/12/09 20:06:40 [emerg] 1#1: open() "/etc/nginx/logs/error.log" failed (2: No such file or directory)
+2025/12/09 20:12:39 [emerg] 1#1: open() "/etc/nginx/logs/error.log" failed (2: No such file or directory)
