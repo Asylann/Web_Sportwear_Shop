@@ -1,0 +1,22 @@
+include:
+  - ../gRPC_Demo/docker-compose.grpc.yml
+  - ../OrderService/docker-compose.order.yml
+  - ./docker-compose.db.yml
+  - ./nginx/docker-compose.nginx.yml
+
+services:
+  app:
+    build: .
+    container_name: sportwear_server
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - order_service
+      - cart_service
+    networks:
+      - sportwear-net
+
+networks:
+  sportwear-net:

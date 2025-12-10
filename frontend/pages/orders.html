@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders | SportwearShop</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/orders.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .payment-status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #28a745;
+      color: white;
+      border-radius: 0;
+      margin-left: 8px;
+    }
+
+    .order-payment-info {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border: 1px solid #bae6fd;
+      border-left: 3px solid #0ea5e9;
+      padding: 15px;
+      margin: 15px 0;
+      font-size: 0.9rem;
+    }
+
+    .order-payment-info-title {
+      font-weight: 700;
+      color: #0c4a6e;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 11px;
+    }
+
+    .order-payment-info-text {
+      color: #075985;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+<header class="dashboard-header">
+  <div class="dashboard-header-content">
+    <h1>🏀 SportwearShop - My Orders</h1>
+    <div class="header-actions">
+      <a href="cart.html" class="button" style="margin-right: 10px;">🛒 My Cart</a>
+      <a href="products.html" class="button" style="margin-right: 10px;">Products</a>
+      <a href="dashboard.html" class="button">Dashboard</a>
+    </div>
+  </div>
+</header>
+
+<main class="dashboard-main">
+  <div class="orders-container">
+    <div id="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading your orders...</p>
+    </div>
+
+    <div id="orders-content" style="display: none;">
+      <div class="orders-header">
+        <h2 class="orders-title">My Orders</h2>
+        <div id="orders-count" class="orders-count"></div>
+      </div>
+
+      <div id="orders-list" class="orders-list">
+        <!-- Orders will be loaded here -->
+      </div>
+    </div>
+
+    <div id="empty-orders" class="empty-orders" style="display: none;">
+      <div class="empty-orders-icon">📦</div>
+      <h3>No orders yet</h3>
+      <p>You haven't placed any orders. Start shopping to see your orders here!</p>
+      <a href="products.html" class="continue-shopping-btn">Start Shopping</a>
+    </div>
+
+    <div id="error-message" class="error-container" style="display: none;">
+      <div class="error-card">
+        <h3>Error Loading Orders</h3>
+        <p id="error-text">Unable to load your orders. Please try again.</p>
+        <button onclick="loadOrders()" class="button">Try Again</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/orders.js"></script>
+<script>
+  // Override the createOrderElement function to add payment info
+  const originalCreateOrderElement = window.createOrderElement || createOrderElement;
+
+  function createOrderElement(order) {
+    const orderCard = document.createElement('div');
+    orderCard.className = 'order-card';
+    orderCard.setAttribute('data-order-id', order.id);
+
+    const isExpanded = expandedOrders.has(order.id);
+    if (isExpanded) {
+      orderCard.classList.add('expanded');
+    }
+
+    const createDate = formatDate(order.create_at);
+    const deliveryDate = formatDate(order.delivered_at);
+
+    const now = new Date();
+    const deliveryDateTime = new Date(order.delivered_at);
+    const isDelivered = deliveryDateTime <= now;
+
+    orderCard.innerHTML = `
+        <div class="order-header" onclick="toggleOrderDetails(${order.id})">
+            <div class="order-header-content">
+                <div class="order-info-left">
+                    <div class="order-id">
+                        Order #${order.id}
+                        <span class="payment-status-badge">✓ PAID</span>
+                    </div>
+                    <div class="order-date">Placed: ${createDate}</div>
+                </div>
+                <div class="order-info-right">
+                    <div class="order-status">
+                        <span class="status-badge ${isDelivered ? 'delivered' : 'processing'}">
+                            ${isDelivered ? 'Delivered' : 'Processing'}
+                        </span>
+                        <span class="transport-badge ${order.transport_type.toLowerCase()}">
+                            ${order.transport_type}
+                        </span>
+                    </div>
+                    <div class="expand-toggle">
+                        <span>${isExpanded ? 'Hide' : 'Show'} Details</span>
+                        <span class="expand-icon">${isExpanded ? '▲' : '▼'}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="order-details" style="display: ${isExpanded ? 'block' : 'none'};">
+            <div class="order-payment-info">
+                <div class="order-payment-info-title">💳 Payment Confirmed</div>
+                <div class="order-payment-info-text">
+                    This order has been paid from your wallet. The amount has been transferred to the sellers.
+                </div>
+            </div>
+
+            <div class="order-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Delivery Address</span>
+                    <span class="meta-value">${order.address}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Expected Delivery</span>
+                    <span class="meta-value">${deliveryDate}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Transport Type</span>
+                    <span class="meta-value">${order.transport_type}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Cart ID</span>
+                    <span class="meta-value">#${order.cart_id}</span>
+                </div>
+            </div>
+            <div class="order-items">
+                <div class="order-items-header">Order Items</div>
+                <div id="order-items-${order.id}" class="order-items-list">
+                    ${isExpanded ? '' : '<div class="loading-items">Loading items...</div>'}
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (isExpanded) {
+      loadOrderItems(order.id);
+    }
+
+    return orderCard;
+  }
+
+  // Make sure the function is available globally
+  if (typeof window.createOrderElement === 'undefined') {
+    window.createOrderElement = createOrderElement;
+  }
+</script>
+</body>
+</html>

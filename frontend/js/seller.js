@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadCategories() {
-    fetch("https://localhost:8080/categories", {
+    fetch("https://localhost:8081/api/categories", {
         credentials: "include"
     })
         .then(res => {
@@ -64,7 +64,7 @@ function loadCategories() {
 
 function loadSellerProducts() {
     const userId = localStorage.getItem("userId")
-    fetch("https://localhost:8080/productsBySeller/"+userId, {
+    fetch("https://localhost:8081/api/productsBySeller/"+userId, {
         credentials : "include",
     })
         .then(res => {
@@ -153,7 +153,7 @@ function handleProductCreation(event) {
 
     console.log("→ Sending payload:", payload);
 
-    fetch("https://localhost:8080/products", {
+    fetch("https://localhost:8081/api/products", {
         method: "POST",
         credentials : "include",
         body: JSON.stringify(payload),
@@ -197,7 +197,7 @@ function handleCategoryCreation(event) {
 
     console.log("→ Sending payload:", payload);
 
-    fetch("https://localhost:8080/categories", {
+    fetch("https://localhost:8081/api/categories", {
         method: "POST",
         credentials : "include",
         body: JSON.stringify(payload),
@@ -227,7 +227,7 @@ function deleteProduct(productId) {
         return;
     }
 
-    fetch(`https://localhost:8080/products/${productId}`, {
+    fetch(`https://localhost:8081/api/products/${productId}`, {
         method: "DELETE",
         credentials : "include",
     })

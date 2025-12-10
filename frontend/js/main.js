@@ -18,7 +18,7 @@ function logout() {
     localStorage.removeItem("role");
     localStorage.removeItem("email");
     localStorage.removeItem("userId");
-    fetch('https://localhost:8080/logout', {
+    fetch('https://localhost:8081/api/logout', {
         credentials: "include"
     })
         .then(res => res.json())

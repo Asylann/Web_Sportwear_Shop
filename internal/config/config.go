@@ -42,7 +42,6 @@ func getConnection() string {
 
 func LoadConfig() (Config, error) {
 	connectionStr := getConnection()
-	fmt.Println(connectionStr)
 	if connectionStr == "host= port= user= password= db_name= sslmode=disable" {
 		log.Fatal("Connection configuration is null")
 		return Config{}, errors.New("Cannot get configuration")

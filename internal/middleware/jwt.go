@@ -113,7 +113,7 @@ func GetClaimFromToken(auth_token, claim string) (interface{}, error) {
 	})
 
 	if err != nil || !token.Valid {
-		log.Printf("Invalid token or expired", err.Error())
+		log.Printf("Invalid token or expired %s", err.Error())
 		return nil, err
 	}
 

@@ -33,9 +33,11 @@ func main() {
 	// Initialization of Db connection
 	db.InitDB(cfg)
 	defer db.CloseDB()
+	log.Println("DB is connected!!!")
 
 	// Initialization of OAuth and OpenID providers (Github.com and Gooogle.com)
 	config.InitOAuthProviders()
+	log.Println("OAuth and OpenId is connected!!!")
 
 	// Initialization of Redis connection
 	err = cache.InitRedisConnection()
@@ -43,9 +45,15 @@ func main() {
 		log.Fatalf("Error during Init Redis: %v", err.Error())
 		return
 	}
+	log.Println("Redis is connected!!!")
 
 	// Initialization of connection to Cart Microservice
 	handlers.InitCartClientConnection()
+	log.Println("CartClient is connected!!!")
+	handlers.InitOrderServiceConn()
+	log.Println("OrderService is connected!!!")
+
+	db.SetEtagVersionByName(context.Background(), "ListOfUsers")
 
 	// Creation of all middlewares
 	authMw := middleware.JWTAuth(cfg.JWT_Secret)
@@ -97,9 +105,14 @@ func main() {
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.DeleteUserHandle)))).Methods("DELETE")
 	r.Handle("/users/{id}", authMw(RequiredAdmin(http.HandlerFunc(handlers.UpdateUserHandle)))).Methods("PUT")
 
+	r.Handle("/orders", authMw(http.HandlerFunc(handlers.CreateOrderHandle))).Methods("POST")
+	r.Handle("/orders", authMw(http.HandlerFunc(handlers.GetOrdersByUserId))).Methods("GET")
+	r.Handle("/orders/{id}", authMw(http.HandlerFunc(handlers.GetItemsOfOrderById))).Methods("GET")
+
+	r.Handle("/wallet", authMw(http.HandlerFunc(handlers.GetUserWalletHandle))).Methods("GET")
 	// Managing access options with rs/cors that allowed request only set sources
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://localhost:8081"},
+		AllowedOrigins:   []string{"https://localhost:8081", "https://localhost:8082"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*", "Etag"},
 		AllowCredentials: true,
@@ -143,7 +156,7 @@ func main() {
 
 	// Forced Shutdown if time has passed
 	if err = srv.Shutdown(ctx); err != nil {
-		log.Println("Server shut down: %v", err.Error())
+		log.Printf("Server shut down: %v", err.Error())
 	}
 	log.Println("Server exiting")
 }

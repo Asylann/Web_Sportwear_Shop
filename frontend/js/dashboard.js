@@ -1,6 +1,6 @@
 // dashboard.js
 
-const API_BASE = "https://localhost:8080";
+const API_BASE = "https://localhost:8081/api";
 
 document.addEventListener("DOMContentLoaded", () => {
     initDashboard();
@@ -44,6 +44,8 @@ async function initDashboard() {
 
         // 4) Show universal nav items
         document.getElementById("nav-products").style.display = "inline-block";
+        document.getElementById("nav-orders").style.display = "inline-block";
+        document.getElementById("nav-cart").style.display = "inline-block";
 
         // 5) Role-based nav
         document.getElementById("nav-seller").style.display =

@@ -2,17 +2,17 @@ package db
 
 import (
 	"WebSportwareShop/internal/config"
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
 	"time"
 )
 
-var db *sql.DB
+var db *sqlx.DB
 
 func InitDB(cfg config.Config) {
 	var err error
-	db, err = sql.Open("postgres", cfg.DatabaseConnection)
+	db, err = sqlx.Open("postgres", cfg.DatabaseConnection)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
@@ -22,11 +22,9 @@ func InitDB(cfg config.Config) {
 		return
 	}
 	/*RunMigrations(db)*/
-	initStmt(db)
 	db.SetMaxOpenConns(20)
 	db.SetMaxIdleConns(20)
 	db.SetConnMaxLifetime(4 * time.Minute)
-	log.Println("DB is connectedQ!!!")
 }
 
 func CloseDB() {

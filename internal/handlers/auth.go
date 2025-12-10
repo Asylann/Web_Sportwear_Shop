@@ -9,7 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	pb "github.com/Asylann/gRPC_Demo/proto"
+	pb "github.com/Asylann/grpc-demo/proto"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth/gothic"
@@ -21,11 +21,6 @@ import (
 
 func HashingToBytes(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), 12)
-}
-
-func CompareHashedPassword(password string, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }
 
 type LoginReq struct {
@@ -41,26 +36,20 @@ func LoginHandle(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	fmt.Println(r_user.Password)
 	ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
 	defer cancel()
 
 	userInDB, err := db.GetUserByEmail(ctx, r_user.Email)
 	if err != nil {
 		log.Println("Invalid email or Unauthorized")
-		http.Error(res, "Invalid email or Unauthorized", http.StatusUnauthorized)
+		httpresponse.WriteJSON(res, http.StatusUnauthorized, "", "Invalid email or Unauthorized")
 		return
 	}
 
-	enteredHashedPassword, err := HashingToBytes(r_user.Password)
-	if err != nil {
-		log.Println(err.Error())
-		httpresponse.WriteJSON(res, http.StatusInternalServerError, "", err.Error())
-		return
-	}
-
-	if CompareHashedPassword(string(enteredHashedPassword), userInDB.Password) {
+	if err := bcrypt.CompareHashAndPassword([]byte(userInDB.Password), []byte(r_user.Password)); err != nil {
 		log.Println("Invalid password")
-		http.Error(res, "Invalid password", http.StatusUnauthorized)
+		httpresponse.WriteJSON(res, http.StatusUnauthorized, "", "Invalid password or Unauthorized")
 		return
 	}
 
@@ -75,7 +64,7 @@ func LoginHandle(res http.ResponseWriter, req *http.Request) {
 		Name:     "auth_token",
 		Value:    signedToken,
 		Path:     "/",
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
 		HttpOnly: true,
 	})
@@ -132,20 +121,40 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 		} else {
 			u = models.User{Email: userEmail, Password: "nullByGithub", RoleId: 1}
 		}
-		id, err := db.CreateUser(ctx, &u)
+		hashedPassword, err := HashingToBytes(u.Password)
 		if err != nil {
 			log.Println(err.Error())
-			httpresponse.WriteJSON(res, http.StatusBadRequest, "", "Error during creation of user")
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "Can not generate hash tp such password")
 			return
 		}
+
+		u.Password = string(hashedPassword)
+
+		ctx, cancel := context.WithTimeout(req.Context(), 2*time.Second)
+		defer cancel()
+		id, err := db.CreateUser(ctx, &u)
+		if err != nil {
+			log.Println("Here" + err.Error())
+			httpresponse.WriteJSON(res, http.StatusBadRequest, nil, err.Error())
+			return
+		}
+
+		walletId, err := db.CreateWalletByUserId(ctx, id)
+		if err != nil {
+			log.Println(err.Error())
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, nil, err.Error())
+			return
+		}
+
+		log.Printf("%v`s wallet was created!!!", walletId)
 
 		_, err = c.CreateCart(ctx, &pb.CreateCartRequest{UserId: int32(id)})
 		if err != nil {
 			log.Println(err.Error())
-			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "smt went wrong")
+			httpresponse.WriteJSON(res, http.StatusInternalServerError, "", "Can not create cart")
 			return
 		}
-		log.Printf("%v`s cart was created!!!")
+		log.Printf("%v`s cart was created!!!", u.Email)
 
 		err = db.ChangeEtagVersionByName(ctx, "ListOfUsers")
 		if err != nil {
@@ -154,8 +163,8 @@ func ProviderLoggedInHandle(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 		log.Println("Version of ListOfUsers was changed to +1")
+		log.Printf("User was created! : %v \n", u)
 
-		log.Printf("User was created = %v", u)
 	}
 
 	userInDB, _ := db.GetUserByEmail(ctx, userEmail)

@@ -11,13 +11,16 @@ import (
 var Rdc *redis.Client
 
 func InitRedisConnection() error {
-	addr := os.Getenv("REDIS_ADDR")
-	if addr == "" {
+	host := os.Getenv("REDIS_HOST")
+	if host == "" {
 		log.Fatal("Addr to redis is not passed!")
 	}
-
+	port := os.Getenv("REDIS_PORT")
+	if port == "" {
+		log.Fatal("Addr to redis is not passed!")
+	}
 	Rdc = redis.NewClient(&redis.Options{
-		Addr:         addr,
+		Addr:         host + port,
 		Password:     "",
 		DB:           0,
 		PoolSize:     20,

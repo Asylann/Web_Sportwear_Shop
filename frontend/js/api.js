@@ -1,6 +1,6 @@
 // apiClient.js
 
-const API_BASE_URL = "https://localhost:8080";
+const API_BASE_URL = "https://localhost:8081/api";
 
 // Generic fetch wrapper that sends the auth cookie automatically
 async function apiRequest(endpoint, method = "GET", body = null) {

@@ -281,7 +281,7 @@
     }
 
     function fetchProducts() {
-        fetch('https://localhost:8080/products', {
+        fetch('https://localhost:8081/api/products', {
             credentials: "include"
         })
             .then(res => {
@@ -300,7 +300,7 @@
     }
 
     function fetchProductsByCategory(categoryId) {
-        fetch(`https://localhost:8080/productsByCategory/${categoryId}`, {
+        fetch(`https://localhost:8081/api/productsByCategory/${categoryId}`, {
             credentials: "include"
         })
             .then(res => {
@@ -376,7 +376,7 @@
     }
 
     function loadCategories() {
-        fetch('https://localhost:8080/categories', {
+        fetch('https://localhost:8081/api/categories', {
             credentials: "include"
         })
             .then(res => res.json())

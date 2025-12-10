@@ -1,7 +1,7 @@
 // frontend/js/utils.js
 
 
-const API_BASEE = "https://localhost:8080";
+const API_BASEE = "https://localhost:8081/api";
 // Show alert messages to user
 function showAlert(message, type = "success") {
     const alertContainer = document.createElement("div");
@@ -158,7 +158,7 @@ function logout() {
     localStorage.removeItem("role");
     localStorage.removeItem("email");
     localStorage.removeItem("userId");
-    fetch("https://localhost:8080/logout", {
+    fetch("https://localhost:8081/api/logout", {
         method: "POST",
         credentials: "include"
     }).then(() => {
@@ -189,7 +189,7 @@ function onSubmit(selector, callback) {
 
 // Enhanced API request with better error handling
 function makeAuthenticatedRequest(endpoint, options = {}) {
-    return fetch(`https://localhost:8080${endpoint}`, {
+    return fetch(`https://localhost:8081/api${endpoint}`, {
         ...options,
         credentials: "include" // <— just this
     }).then(response => {

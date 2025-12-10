@@ -98,7 +98,7 @@
 
   function loadProductDetail(productId) {
 
-    fetch(`https://localhost:8080/products/${productId}`, {
+    fetch(`https://localhost:8081/api/products/${productId}`, {
       credentials: "include"
     })
             .then(res => {
@@ -123,7 +123,7 @@
 
   async function CategoryInfo(CategoryId) {
     try {
-      const res = await fetch(`https://localhost:8080/categories/${CategoryId}`, {
+      const res = await fetch(`https://localhost:8081/api/categories/${CategoryId}`, {
         credentials : "include"
       });
 
@@ -138,7 +138,7 @@
 
   async function SellerInfo(SellerId) {
     try {
-      const res = await fetch(`https://localhost:8080/users/email/${SellerId}`, {
+      const res = await fetch(`https://localhost:8081/api/users/email/${SellerId}`, {
         credentials : "include"
       });
 
@@ -198,7 +198,7 @@
     addBtn.disabled = true;
     addBtn.textContent = 'Adding...';
 
-    fetch(`https://localhost:8080/addToCart/${productId}`, {
+    fetch(`https://localhost:8081/api/addToCart/${productId}`, {
       method: 'POST',
       credentials: "include"
     })

@@ -6,9 +6,9 @@ import (
 	"WebSportwareShop/internal/middleware"
 	"WebSportwareShop/internal/models"
 	"context"
-
-	pb "github.com/Asylann/gRPC_Demo/proto"
 	"github.com/gorilla/mux"
+
+	pb "github.com/Asylann/grpc-demo/proto"
 	"google.golang.org/grpc"
 	"log"
 	"net/http"
@@ -20,7 +20,7 @@ import (
 var c pb.CartServiceClient
 
 func InitCartClientConnection() {
-	conn, err := grpc.Dial(":50051", grpc.WithInsecure())
+	conn, err := grpc.Dial("cart_service:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -199,7 +199,9 @@ func GetItemsOfCartByIdHandle(res http.ResponseWriter, req *http.Request) {
 	etag := `"` + mdHashing([]byte(etagStr)) + `"`
 
 	res.Header().Set("ETag", etag)
-	res.Header().Set("Cache-Control", "max-age=30 public must-revalidate")
+	res.Header().Set("Cache-Control", "public, max-age=5, must-revalidate")
+	log.Printf("version=%d etagStr=%q computedETag=%q If-None-Match=%q",
+		etagRes.GetVersion(), etagStr, etag, req.Header.Get("If-None-Match"))
 
 	if match := req.Header.Get("If-None-Match"); match == etag {
 		log.Printf("Cart of %v was received By http caching", userEmail)
